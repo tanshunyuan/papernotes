@@ -1,0 +1,19 @@
+---
+version: "3.9"
+services:
+  papernotes-postgres:
+    image: postgres:14.5
+    container_name: papernotes-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: papernotes
+      POSTGRES_PASSWORD: papernotes
+      POSTGRES_DB: papernotes
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+
+volumes:
+  postgres-volume:
+    external: false

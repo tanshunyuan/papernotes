@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { posts } from "~/server/db/schema";
+import { newEnforcer } from 'casbin'
 
 export const postRouter = createTRPCRouter({
   hello: publicProcedure
@@ -28,4 +29,9 @@ export const postRouter = createTRPCRouter({
       orderBy: (posts, { desc }) => [desc(posts.createdAt)],
     });
   }),
+  guard: publicProcedure.query(async ({ ctx }) => {
+    const e = await newEnforcer('path/to/model.conf', 'path/to/policy.csv');
+
+
+  })
 });

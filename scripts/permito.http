@@ -1,0 +1,6 @@
+
+@hostname=http://localhost:3000
+
+
+GET {{hostname}}/api/permitio
+Content-Type: application/json

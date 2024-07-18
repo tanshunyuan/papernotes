@@ -5,7 +5,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 
 import "~/styles/globals.css";
-import { BaseChildrenProps } from "~/types/common";
+import { type BaseChildrenProps } from "~/types/common";
 import { ClerkProvider } from "@clerk/nextjs";
 
 const inter = Inter({

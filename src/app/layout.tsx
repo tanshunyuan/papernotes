@@ -1,8 +1,12 @@
-import "~/styles/globals.css";
 
 import { Inter } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
+
+import "~/styles/globals.css";
+import { BaseChildrenProps } from "~/types/common";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -15,15 +19,16 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout(props: BaseChildrenProps) {
+  const { children } = props;
   return (
     <html lang="en">
       <body className={`font-sans ${inter.variable}`}>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <ClerkProvider>
+          <AppRouterCacheProvider>
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+          </AppRouterCacheProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "next build",
-    "db:push": "drizzle-kit push:pg",
-    "db:studio": "drizzle-kit studio",
-    "dev": "next dev",
+    "dev": "pnpm run db:migrate && next dev",
+    "db:generate": "dotenv drizzle-kit generate:pg",
+    "db:drop": "dotenv drizzle-kit drop",
+    "db:migrate": "tsx -r dotenv/config ./migrate.ts",
     "lint": "next lint",
     "start": "next start"
   },
@@ -31,9 +32,11 @@
     "react-dom": "18.2.0",
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "dotenv-cli": "^7.4.1"
   },
   "devDependencies": {
+    "tsx": "^4.7.2",
     "@types/eslint": "^8.44.7",
     "@types/node": "^18.17.0",
     "@types/pg": "^8.11.6",

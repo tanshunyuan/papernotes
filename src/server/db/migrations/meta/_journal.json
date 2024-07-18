@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1721287684552,
+      "tag": "0000_exotic_gwen_stacy",
+      "breakpoints": true
+    }
+  ]
+}

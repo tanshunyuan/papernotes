@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "next build",
+    "config": "tsx -r dotenv/config ./scripts/permitio-setup/execute.ts",
     "dev": "pnpm run db:migrate && next dev",
     "db:generate": "dotenv drizzle-kit generate:pg",
     "db:drop": "dotenv drizzle-kit drop",

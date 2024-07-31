@@ -2,7 +2,8 @@ export const ROUTE_PATHS = {
   DEFAULT: '/',
   SIGNIN: '/sign-in',
   SIGNUP: '/sign-up',
-  PROJECTS: {
-    HOME: '/app/projects'
+  APP: {
+    PROJECT_HOME: '/app/projects',
+    TOOLS: '/app/tool'
   }
 }

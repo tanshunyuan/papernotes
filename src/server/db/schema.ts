@@ -1,12 +1,15 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   index,
+  pgEnum,
   pgTableCreator,
   serial,
+  text,
   timestamp,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -18,17 +21,17 @@ import {
  */
 export const createTable = pgTableCreator((name) => `papernotes_${name}`);
 
-export const posts = createTable(
-  "post",
+export const pgRolesEnum = pgEnum('roles_enum', ['ADMIN', 'MEMBER'])
+
+export const userSchema = createTable(
+  'users',
   {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdAt: timestamp("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updatedAt"),
-  },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
-  })
-);
+    id: uuid('id').primaryKey().notNull(),
+    email: text('email').notNull(),
+    name: text('name').notNull(),
+    createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+    role: pgRolesEnum('role').default('MEMBER')
+  }
+)
+
+

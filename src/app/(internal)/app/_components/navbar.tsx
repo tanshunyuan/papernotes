@@ -5,6 +5,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "~/utils/route-paths";
+import Link from "next/link";
 
 export const AppNavbar = () => {
   const { signOut } = useClerk()
@@ -17,18 +18,19 @@ export const AppNavbar = () => {
   return <Box sx={{ flexGrow: 1 }}>
     <AppBar position="static">
       <Toolbar>
-        <IconButton
-          size="large"
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          sx={{ mr: 2 }}
-        >
-          <MenuIcon />
-        </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          News
+
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Link href={ROUTE_PATHS.APP.PROJECT_HOME}>
+            Project
+          </Link>
         </Typography>
+
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Link href={ROUTE_PATHS.APP.TOOLS}>
+            Tools
+          </Link>
+        </Typography>
+
         <Button onClick={handleLogout} color="inherit">Logout</Button>
       </Toolbar>
     </AppBar>

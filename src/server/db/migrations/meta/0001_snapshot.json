@@ -1,0 +1,65 @@
+{
+  "id": "7d8a1064-2583-49ee-b745-2a9619337242",
+  "prevId": "c87c939b-46e8-4f93-b262-e102e9761fa9",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "papernotes_users": {
+      "name": "papernotes_users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "role": {
+          "name": "role",
+          "type": "roles_enum",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'MEMBER'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {
+    "roles_enum": {
+      "name": "roles_enum",
+      "values": {
+        "ADMIN": "ADMIN",
+        "MEMBER": "MEMBER"
+      }
+    }
+  },
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

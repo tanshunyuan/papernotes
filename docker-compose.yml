@@ -13,15 +13,15 @@ services:
       - 5432:5432
     volumes:
       - papernotes-postgres-volume:/var/lib/postgresql/data
-  papernotes-pdp:
-    image: permitio/pdp-v2:latest
-    container_name: papernotes-pdp
-    restart: always
-    ports:
-      - 7766:7000
-    environment:
-      PDP_DEBUG: True
-      PDP_API_KEY: ${PERMIT_API_KEY}
+  # papernotes-pdp:
+  #   image: permitio/pdp-v2:latest
+  #   container_name: papernotes-pdp
+  #   restart: always
+  #   ports:
+  #     - 7766:7000
+  #   environment:
+  #     PDP_DEBUG: True
+  #     PDP_API_KEY: ${PERMIT_API_KEY}
 
 volumes:
   papernotes-postgres-volume:

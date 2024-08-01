@@ -34,4 +34,11 @@ export const userSchema = createTable(
   }
 )
 
-
+export const projectSchema = createTable('projects', {
+  id: text('id').primaryKey().notNull(),
+  name: text('name').notNull(),
+  userId: text('user_id').notNull(),
+  description: text('description').notNull(),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+})

@@ -1,11 +1,17 @@
-import { type pgRolesEnum } from '~/server/db/schema';
+import { pgRolesEnum } from '~/server/db/schema';
+
+/**@see {@link pgRolesEnum} */
+export enum USER_ROLE_ENUM {
+  MEMBER = 'MEMBER',
+  ADMIN = 'ADMIN'
+}
 
 interface UserProps {
   id: string
   email: string
   name: string
   createdAt?: Date
-  role: typeof pgRolesEnum
+  role: USER_ROLE_ENUM
 }
 
 export class User {

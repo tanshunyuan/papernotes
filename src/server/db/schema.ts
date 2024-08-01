@@ -26,11 +26,11 @@ export const pgRolesEnum = pgEnum('roles_enum', ['ADMIN', 'MEMBER'])
 export const userSchema = createTable(
   'users',
   {
-    id: uuid('id').primaryKey().notNull(),
+    id: text('id').primaryKey().notNull(),
     email: text('email').notNull(),
     name: text('name').notNull(),
     createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
-    role: pgRolesEnum('role').default('MEMBER')
+    role: pgRolesEnum('role').default('MEMBER').notNull(),
   }
 )
 

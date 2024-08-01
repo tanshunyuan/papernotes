@@ -6,6 +6,10 @@ export default function AppLayout(props: BaseChildrenProps) {
   const { children } = props;
   return <Box>
     <AppNavbar />
-    {children}
+    <Box sx={{
+      p: '1rem'
+    }}>
+      {children}
+    </Box>
   </Box>
 }

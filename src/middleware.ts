@@ -22,7 +22,7 @@ export default clerkMiddleware((auth, req) => {
   afterSignUpUrl: env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,
   signInUrl: env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
   signUpUrl: env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,
-  debug: true
+  debug: false
 });
 
 export const config = {

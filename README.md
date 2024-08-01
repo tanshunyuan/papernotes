@@ -25,4 +25,4 @@ You can check out the [create-t3-app GitHub repository](https://github.com/t3-os
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
 
 ## Goal
-1. Perfrom basic RBAC on CRUD operations for a project, admin can CRUD a project but member can only CR their own project
+1. Perfrom basic RBAC on CRUD operations for a project, admin can CRUD a project but member can only CR their own project. Additionally, admin can access a page which sees all the users

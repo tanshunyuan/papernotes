@@ -34,6 +34,10 @@ export const userSchema = createTable(
   }
 )
 
+export const userSchemaRelations = relations(userSchema, ({ many }) => ({
+  projects: many(projectSchema)
+}))
+
 export const projectSchema = createTable('projects', {
   id: text('id').primaryKey().notNull(),
   name: text('name').notNull(),
@@ -42,3 +46,10 @@ export const projectSchema = createTable('projects', {
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
 })
+
+export const projectSchemaRelations = relations(projectSchema, ({ one }) => ({
+  users: one(userSchema, {
+    fields: [projectSchema.userId],
+    references: [userSchema.id]
+  })
+}))

@@ -44,7 +44,6 @@ export default function ProjectsPage() {
       <Box
         sx={{
           display: "flex",
-          flexDirection: 'column',
           gap: '1rem',
         }}
       >

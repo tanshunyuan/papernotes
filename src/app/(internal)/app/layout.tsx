@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import { BaseChildrenProps } from "~/types/common";
 import { AppNavbar } from "./_components/navbar";
+import { Toaster } from "react-hot-toast";
 
 export default function AppLayout(props: BaseChildrenProps) {
   const { children } = props;
@@ -9,6 +10,7 @@ export default function AppLayout(props: BaseChildrenProps) {
     <Box sx={{
       p: '1rem'
     }}>
+      <Toaster />
       {children}
     </Box>
   </Box>

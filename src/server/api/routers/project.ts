@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Project } from '../../domains/project-management/models/project';
 import { uuid } from 'uuidv4';
 import { projectRepository } from '~/server/domains/project-management/repo';
+import { projectManagementService } from '~/server/domains/project-management/services';
 
 const createProjectValidator = z.object({
   name: z.string().min(1).max(100),
@@ -25,8 +26,8 @@ export const projectRouter = createTRPCRouter({
       })
 
       await projectRepository.save(project)
-      
-      
+
+
     } catch (e) {
       const error = e as Error
       throw new TRPCError({
@@ -39,7 +40,7 @@ export const projectRouter = createTRPCRouter({
   getProjectsByUserId: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.auth.userId
     try {
-      const projects = (await projectRepository.getProjectsByUserId(userId)).map(project => project.getValue())
+      const projects = await projectManagementService.getProjectsByUserId(userId)
       return projects
     } catch (e) {
       const error = e as Error

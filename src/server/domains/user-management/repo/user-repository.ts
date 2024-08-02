@@ -35,6 +35,15 @@ export class UserRepository {
     } catch (error) {
       throw new Error(`Error getting user by id: ${error}`);
     }
+  }
 
+  public async getUserByIdOrFail(id: string) {
+    try {
+      const user = await this.getUserByIdOrNull(id)
+      if (!user) throw new Error('User not found')
+      return user
+    } catch (error) {
+      throw new Error(`Error getting user by id: ${error}`);
+    }
   }
 }

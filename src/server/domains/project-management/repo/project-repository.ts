@@ -63,4 +63,28 @@ export class ProjectRepository {
       throw new Error(`Error getting projects by user id: ${error}`)
     }
   }
+
+  public async getAllProjects() {
+    try {
+      const rawResults = await this.dbService.getQueryClient().query.projectSchema
+        .findMany()
+
+      if (!rawResults || rawResults.length === 0) return []
+
+      const projects = rawResults.map(project => {
+        return new Project({
+          id: project.id,
+          name: project.name,
+          userId: project.userId,
+          description: project.description,
+          createdAt: project.createdAt,
+          updatedAt: project.updatedAt
+        })
+      })
+      return projects
+      
+    } catch (error) {
+      throw new Error(`Error getting all projects: ${error}`)
+    }
+  }
 }

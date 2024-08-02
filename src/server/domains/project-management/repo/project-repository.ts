@@ -38,6 +38,26 @@ export class ProjectRepository {
     }
   }
 
+  public async getProjectByIdOrFail(id: string) {
+    try {
+      const project = await this.getProjectByIdOrNull(id)
+      if (!project) {
+        throw new Error('Project not found')
+      }
+      return project
+    } catch (error) {
+      throw new Error(`Error getting project by id: ${error}`)
+    }
+  }
+
+  public async update(entity: Project) {
+    try {
+      await this.dbService.getQueryClient().update(projectSchema).set(entity.getValue()).where(eq(projectSchema.id, entity.getValue().id))
+    } catch (error) {
+      throw new Error(`Error updating project: ${error}`)
+    }
+  }
+
   public async getProjectsByUserId(userId: string) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.projectSchema
@@ -58,7 +78,7 @@ export class ProjectRepository {
         })
       })
       return projects
-      
+
     } catch (error) {
       throw new Error(`Error getting projects by user id: ${error}`)
     }
@@ -82,7 +102,7 @@ export class ProjectRepository {
         })
       })
       return projects
-      
+
     } catch (error) {
       throw new Error(`Error getting all projects: ${error}`)
     }

@@ -31,4 +31,25 @@ export class ProjectManagementService {
       throw new Error(`Error getting projects by user id: ${error}`)
     }
   }
+
+  public async updateProject(projectId: string, name: string, description: string) {
+    try {
+      const project = await this.projectRepo.getProjectByIdOrFail(projectId)
+      if (!project) {
+        throw new Error('Project not found')
+      }
+
+      // const canUpdate = await this.authService.canPerformOperation(project.userId, PROJECT_PERIMSSIONS.UPDATE)
+      // if (!canUpdate) {
+      //   throw new Error('You do not have permission to perform this operation')
+      // }
+
+      project.getValue().name = name
+      project.getValue().description = description
+
+      await this.projectRepo.update(project)
+    } catch (error) {
+      throw new Error(`Error updating project: ${error}`)
+    }
+  }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 'use client';
 
 import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
@@ -8,6 +9,7 @@ import React, { useState } from "react";
 import { CreateProjectDialog } from "./_components/dialogs/create-project-dialog";
 import { RouterOutputs } from "~/trpc/shared";
 import { UpdateProjectDialog } from "./_components/dialogs/update-project-dialog";
+import toast from "react-hot-toast";
 
 export default function ProjectsPage() {
   const [openProjectDialog, setOpenProjectDialog] = useState(false);
@@ -62,6 +64,9 @@ const ProjectCard = (props: ProjectCardProps) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
+  const deleteProjectMutation = api.project.deleteAProject.useMutation();
+  const projectContext = api.useUtils().project;
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -74,13 +79,30 @@ const ProjectCard = (props: ProjectCardProps) => {
     handleClose()
   }
 
+  const handleDeleteProject = () => {
+    deleteProjectMutation.mutate({
+      id: project.id
+    }, {
+      onSuccess: () => {
+        toast.success("Project deleted successfully")
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+      onSettled: () => {
+        projectContext.getProjectsByUserId.invalidate()
+        handleClose()
+      }
+    })
+  }
+
   return (
     <>
-    <UpdateProjectDialog
-      open={openUpdateProjectDialog}
-      setOpen={setOpenUpdateProjectDialog}
-      project={project}
-    />
+      <UpdateProjectDialog
+        open={openUpdateProjectDialog}
+        setOpen={setOpenUpdateProjectDialog}
+        project={project}
+      />
 
       <Box
         sx={{
@@ -108,7 +130,7 @@ const ProjectCard = (props: ProjectCardProps) => {
           }}
         >
           <MenuItem onClick={handleUpdateProject}>Update</MenuItem>
-          <MenuItem sx={{ color: 'red' }} onClick={handleClose}>Delete</MenuItem>
+          <MenuItem sx={{ color: 'red' }} onClick={handleDeleteProject}>Delete</MenuItem>
         </Menu>
       </Box>
     </>

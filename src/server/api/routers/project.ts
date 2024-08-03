@@ -77,7 +77,7 @@ export const projectRouter = createTRPCRouter({
   deleteAProject: protectedProcedure.input(deleteProjectValidator).mutation(async ({ ctx, input }) => {
     try {
       const userId = ctx.auth.userId
-
+      await projectManagementService.deleteProject(userId, input.id)
     } catch (e) {
       const error = e as Error
       throw new TRPCError({

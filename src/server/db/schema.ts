@@ -45,6 +45,7 @@ export const projectSchema = createTable('projects', {
   description: text('description').notNull(),
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+  deletedAt: timestamp('deleted_at')
 })
 
 export const projectSchemaRelations = relations(projectSchema, ({ one }) => ({

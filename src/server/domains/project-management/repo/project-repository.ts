@@ -1,7 +1,7 @@
 import { projectSchema } from './../../../db/schema';
 import { DbService } from '~/server/db';
 import { Project } from '../models/project';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 
 export class ProjectRepository {
   constructor(private readonly dbService: DbService) { }
@@ -14,11 +14,27 @@ export class ProjectRepository {
     }
   }
 
+  public async update(entity: Project) {
+    try {
+      await this.dbService.getQueryClient().update(projectSchema).set({ ...entity.getValue(), updatedAt: new Date() }).where(eq(projectSchema.id, entity.getValue().id))
+    } catch (error) {
+      throw new Error(`Error updating project: ${error}`)
+    }
+  }
+
+  public async delete(id: string) {
+    try {
+      await this.dbService.getQueryClient().update(projectSchema).set({ deletedAt: new Date() }).where(eq(projectSchema.id, id))
+    } catch (error) {
+      throw new Error(`Error deleting project: ${error}`)
+    }
+  }
+
   public async getProjectByIdOrNull(id: string) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.projectSchema
         .findFirst({
-          where: eq(projectSchema.id, id)
+          where: and(eq(projectSchema.id, id), isNull(projectSchema.deletedAt))
         })
 
       if (!rawResults) return null
@@ -50,13 +66,6 @@ export class ProjectRepository {
     }
   }
 
-  public async update(entity: Project) {
-    try {
-      await this.dbService.getQueryClient().update(projectSchema).set(entity.getValue()).where(eq(projectSchema.id, entity.getValue().id))
-    } catch (error) {
-      throw new Error(`Error updating project: ${error}`)
-    }
-  }
 
   public async getProjectsByUserId(userId: string) {
     try {
@@ -87,7 +96,9 @@ export class ProjectRepository {
   public async getAllProjects() {
     try {
       const rawResults = await this.dbService.getQueryClient().query.projectSchema
-        .findMany()
+        .findMany({
+          where: isNull(projectSchema.deletedAt)
+        })
 
       if (!rawResults || rawResults.length === 0) return []
 

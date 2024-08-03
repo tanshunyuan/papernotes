@@ -39,6 +39,7 @@ export class ProjectManagementService {
         throw new Error('Project not found')
       }
 
+      // interesting, other than this how can we check perform this check through the permissions
       if(project.getValue().userId !== userId){
         throw new Error('You do not have permission to perform this operation')
       }
@@ -51,4 +52,23 @@ export class ProjectManagementService {
       throw new Error(`Error updating project: ${error}`)
     }
   }
+
+  public async deleteProject(userId: string, projectId: string) {
+    try {
+      const project = await this.projectRepo.getProjectByIdOrFail(projectId)
+      if (!project) {
+        throw new Error('Project not found')
+      }
+
+      // interesting, other than this how can we check perform this check through the permissions
+      if(project.getValue().userId !== userId){
+        throw new Error('You do not have permission to perform this operation')
+      }
+
+      await this.projectRepo.delete(projectId)
+    } catch (error) {
+      throw new Error(`Error deleting project: ${error}`)
+    }
+  }
+
 }

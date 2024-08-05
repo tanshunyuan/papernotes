@@ -1,7 +1,7 @@
 import { projectSchema } from './../../../db/schema';
 import { DbService } from '~/server/db';
 import { Project } from '../models/project';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, count, eq, isNull } from 'drizzle-orm';
 
 export class ProjectRepository {
   constructor(private readonly dbService: DbService) { }
@@ -51,6 +51,21 @@ export class ProjectRepository {
       return project
     } catch (error) {
       throw new Error(`Error getting project by id: ${error}`)
+    }
+  }
+
+  public async getProjectCountOrNullByUserId(userId: string) {
+    try {
+      const rawResults = await this.dbService.getQueryClient().select({
+        count: count()
+      }).from(projectSchema).where(eq(projectSchema.userId, userId))
+      if (!rawResults || rawResults.length === 0) return null
+
+      // @ts-expect-error idk what this mian talking about
+      return rawResults[0].count
+    }
+    catch (error) {
+      throw new Error(`Error getting project count by user id: ${error}`)
     }
   }
 

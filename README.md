@@ -26,4 +26,5 @@ Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/ver
 
 ## Goal
 1. Perfrom basic RBAC on CRUD operations for a project, admin can CRUD a project but member can only CR their own project. Additionally, admin can access a page which sees all the users
-2. Add in organisation and team functionality to further introduce RBAC and resource limits, it'd be interesting to see how admin can only see projects that they are part of and not involve themselves with other organisations
+2. Add resource limits to projects, and organisation seats.
+3. Add in organisation and team functionality to further introduce RBAC and resource limits, it'd be interesting to see how admin can only see projects that they are part of and not involve themselves with other organisations

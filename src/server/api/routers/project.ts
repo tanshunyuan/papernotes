@@ -25,19 +25,7 @@ export const projectRouter = createTRPCRouter({
   create: protectedProcedure.input(createProjectValidator).mutation(async ({ ctx, input }) => {
     try {
       const userId = ctx.auth.userId
-
-      const project = new Project({
-        id: uuid(),
-        name: input.name,
-        userId: userId,
-        description: input.description,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-
-      await projectRepository.save(project)
-
-
+      await projectManagementService.createProject(userId, input.name, input.description)
     } catch (e) {
       const error = e as Error
       throw new TRPCError({

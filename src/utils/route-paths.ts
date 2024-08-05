@@ -3,7 +3,10 @@ export const ROUTE_PATHS = {
   SIGNIN: '/sign-in',
   SIGNUP: '/sign-up',
   APP: {
-    PROJECT_HOME: '/app/projects',
+    PROJECT: {
+      HOME: '/app/projects',
+      DETAILS: (id: string) => `/app/projects/${id}`
+    },
     TOOLS: '/app/tool'
   }
 }

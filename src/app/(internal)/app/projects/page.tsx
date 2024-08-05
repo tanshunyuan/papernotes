@@ -10,6 +10,8 @@ import { CreateProjectDialog } from "./_components/dialogs/create-project-dialog
 import { RouterOutputs } from "~/trpc/shared";
 import { UpdateProjectDialog } from "./_components/dialogs/update-project-dialog";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { ROUTE_PATHS } from "~/utils/route-paths";
 
 export default function ProjectsPage() {
   const [openProjectDialog, setOpenProjectDialog] = useState(false);
@@ -63,6 +65,7 @@ const ProjectCard = (props: ProjectCardProps) => {
   const [openUpdateProjectDialog, setOpenUpdateProjectDialog] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const router = useRouter()
 
   const deleteProjectMutation = api.project.deleteAProject.useMutation();
   const projectContext = api.useUtils().project;
@@ -94,6 +97,10 @@ const ProjectCard = (props: ProjectCardProps) => {
         handleClose()
       }
     })
+  }
+
+  const handleViewProjectDetails = () => {
+    router.push(ROUTE_PATHS.APP.PROJECT.DETAILS(project.id))
   }
 
   return (
@@ -129,8 +136,16 @@ const ProjectCard = (props: ProjectCardProps) => {
             'aria-labelledby': 'basic-button',
           }}
         >
-          <MenuItem onClick={handleUpdateProject}>Update</MenuItem>
-          <MenuItem sx={{ color: 'red' }} onClick={handleDeleteProject}>Delete</MenuItem>
+
+          <MenuItem onClick={handleViewProjectDetails}>View Details</MenuItem>
+          {project.permissions?.includes('project:update_own') ?
+            <MenuItem onClick={handleUpdateProject}>Update</MenuItem> : null
+          }
+
+          {
+            project.permissions?.includes('project:delete_own') ?
+              <MenuItem sx={{ color: 'red' }} onClick={handleDeleteProject}>Delete</MenuItem> : null
+          }
         </Menu>
       </Box>
     </>

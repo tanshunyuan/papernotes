@@ -8,20 +8,34 @@ export class ProjectManagementService {
   constructor(
     private readonly projectRepo: ProjectRepository,
     private readonly authService: AuthorisationService
-) { }
+  ) { }
 
   public async getProjectsByUserId(userId: string) {
     try {
 
       const canReadAll = await this.authService.canPerformOperation(userId, PROJECT_PERIMSSIONS.READ_ALL);
-      if(canReadAll){
-          const allProjects = (await this.projectRepo.getAllProjects()).map(project => project.getValue())
-          return allProjects
+      if (canReadAll) {
+        const allProjects = (await this.projectRepo.getAllProjects()).map(project => {
+          const value = project.getValue()
+          const permissions = value.userId === userId ? ROLE_PERMISSIONS.ADMIN : undefined
+          return {
+            ...value,
+            permissions
+          }
+        })
+        return allProjects
       }
 
       const canReadOwn = await this.authService.canPerformOperation(userId, PROJECT_PERIMSSIONS.READ_OWN);
-      if(canReadOwn){
-        const userProjects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => project.getValue())
+      if (canReadOwn) {
+        const userProjects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => {
+          const value = project.getValue()
+          const permissions = value.userId === userId ? ROLE_PERMISSIONS.MEMBER : undefined
+          return {
+            ...value,
+            permissions
+          }
+        })
         return userProjects
       }
 
@@ -40,7 +54,7 @@ export class ProjectManagementService {
       }
 
       // interesting, other than this how can we check perform this check through the permissions
-      if(project.getValue().userId !== userId){
+      if (project.getValue().userId !== userId) {
         throw new Error('You do not have permission to perform this operation')
       }
 
@@ -61,7 +75,7 @@ export class ProjectManagementService {
       }
 
       // interesting, other than this how can we check perform this check through the permissions
-      if(project.getValue().userId !== userId){
+      if (project.getValue().userId !== userId) {
         throw new Error('You do not have permission to perform this operation')
       }
 

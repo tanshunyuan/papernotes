@@ -61,6 +61,19 @@ export const projectRouter = createTRPCRouter({
     }
   }),
 
+  getAProjectById: protectedProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
+    try {
+      const project = (await projectRepository.getProjectByIdOrFail(input.projectId)).getValue()
+      return project
+    } catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  }),
+
   updateAProject: protectedProcedure.input(updateProjectValidator).mutation(async ({ ctx, input }) => {
     try {
       const userId = ctx.auth.userId

@@ -34,7 +34,7 @@ export const AppNavbar = () => {
           gap: '1rem'
         }}>
           <Typography>
-            <Link href={ROUTE_PATHS.APP.PROJECT_HOME}>
+            <Link href={ROUTE_PATHS.APP.PROJECT.HOME}>
               Project
             </Link>
           </Typography>

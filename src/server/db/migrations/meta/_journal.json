@@ -43,6 +43,13 @@
       "when": 1722925958961,
       "tag": "0005_cheerful_roland_deschain",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1722932065100,
+      "tag": "0006_clever_tigra",
+      "breakpoints": true
     }
   ]
 }

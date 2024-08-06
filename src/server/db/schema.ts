@@ -65,6 +65,7 @@ export const organisationSchema = createTable('organisations', {
   max_seats: integer('max_seats').notNull(),
   createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+  deletedAt: timestamp('deleted_at')
 })
 
 export const organisationSchemaRelations = relations(organisationSchema, ({ many }) => ({

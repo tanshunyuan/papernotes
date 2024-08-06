@@ -1,0 +1,1 @@
+ALTER TABLE "papernotes_organisations" ADD COLUMN "deleted_at" timestamp;

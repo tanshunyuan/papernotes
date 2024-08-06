@@ -4,6 +4,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   index,
+  integer,
   pgEnum,
   pgTableCreator,
   serial,
@@ -51,6 +52,40 @@ export const projectSchema = createTable('projects', {
 export const projectSchemaRelations = relations(projectSchema, ({ one }) => ({
   users: one(userSchema, {
     fields: [projectSchema.userId],
+    references: [userSchema.id]
+  })
+}))
+
+export const organisationSchema = createTable('organisations', {
+  id: text('id').primaryKey().notNull(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  plan_duration_start: timestamp('plan_duration_start').notNull(),
+  plan_duration_end: timestamp('plan_duration_end').notNull(),
+  max_seats: integer('max_seats').notNull(),
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+})
+
+export const organisationSchemaRelations = relations(organisationSchema, ({ many }) => ({
+  users: many(organisationUsersSchema)
+}))
+
+export const organisationUsersSchema = createTable('organisation_users', {
+  id: text('id').primaryKey().notNull(),
+  organisationId: text('organisation_id').references(() => organisationSchema.id).notNull(),
+  userId: text('user_id').references(() => userSchema.id).notNull(),
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+})
+
+export const organisationUsersSchemaRelations = relations(organisationUsersSchema, ({ one }) => ({
+  organisation: one(organisationSchema, {
+    fields: [organisationUsersSchema.organisationId],
+    references: [organisationSchema.id]
+  }),
+  user: one(userSchema, {
+    fields: [organisationUsersSchema.userId],
     references: [userSchema.id]
   })
 }))

@@ -59,7 +59,8 @@ export class ProjectRepository {
       const rawResults = await this.dbService.getQueryClient().select({
         count: count()
       }).from(projectSchema).where(eq(projectSchema.userId, userId))
-      if (!rawResults || rawResults.length === 0) return null
+      console.log('rawResults', rawResults)
+      if (!rawResults) return null
 
       // @ts-expect-error idk what this mian talking about
       return rawResults[0].count

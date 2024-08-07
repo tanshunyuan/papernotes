@@ -61,13 +61,13 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
         {
           onSuccess: () => {
             toast.success("Project created successfully");
-            onClose()
           },
           onError: (error) => {
             toast.error(error.message);
           },
           onSettled: () => {
             projectContext.getProjectsByUserId.invalidate()
+            onClose()
           }
         },
       );

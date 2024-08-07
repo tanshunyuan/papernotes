@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { DbService } from "~/server/db";
 import { userSchema } from "~/server/db/schema";
-import { User, USER_ROLE_ENUM } from "../models/user";
+import { User, USER_PLAN_ENUM } from "../models/user";
 
 export class UserRepository {
   constructor(private readonly dbService: DbService) { }
@@ -28,7 +28,7 @@ export class UserRepository {
         email: rawResults.email,
         name: rawResults.name,
         createdAt: rawResults.createdAt,
-        role: USER_ROLE_ENUM[rawResults.role]
+        plan: USER_PLAN_ENUM[rawResults.userPlan]
       })
 
       return user;

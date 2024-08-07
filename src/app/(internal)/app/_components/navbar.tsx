@@ -39,15 +39,18 @@ export const AppNavbar = () => {
             </Link>
           </Typography>
 
-          <Typography>
-            <Link href={ROUTE_PATHS.APP.TOOLS}>
-              Tools
-            </Link>
-          </Typography>
+
+          {userQuery.data?.email.includes('@gignite') ?
+            <Typography>
+              <Link href={ROUTE_PATHS.APP.TOOLS.HOME}>
+                Tools
+              </Link>
+            </Typography> : null
+          }
         </Box>
 
         <Box>
-          <Typography>Welcome {userQuery.data?.email}. You&apos;re a {userQuery.data?.role}</Typography>
+          <Typography>Welcome {userQuery.data?.email}. You&apos;re on {userQuery.data?.plan}</Typography>
         </Box>
 
         <Box>

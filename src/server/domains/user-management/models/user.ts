@@ -21,9 +21,13 @@ interface UserProps {
 }
 
 export class User {
-  constructor(private readonly props: UserProps) {}
+  constructor(private readonly props: UserProps) { }
 
   public getValue() {
     return this.props;
+  }
+
+  public isEmployee() {
+    return this.props.email.includes('@gignite')
   }
 }

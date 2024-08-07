@@ -1,6 +1,6 @@
 import { userRepository } from "~/server/domains/user-management/repo";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { User, USER_ROLE_ENUM } from "~/server/domains/user-management/models/user";
+import { User, USER_PLAN_ENUM } from "~/server/domains/user-management/models/user";
 import { uuid } from 'uuidv4';
 import { clerkClient } from "@clerk/nextjs/server";
 import { TRPCClientError } from "@trpc/client";
@@ -21,7 +21,8 @@ export const userRouter = createTRPCRouter({
         id: userId,
         email: clerkUser.primaryEmailAddress?.emailAddress ?? '',
         name: `${clerkUser.firstName} ${clerkUser.lastName}`,
-        role: USER_ROLE_ENUM.MEMBER
+        /**@todo learn how to hide this in the class */
+        plan: USER_PLAN_ENUM.FREE
       })
 
       await userRepository.save(user)
@@ -41,7 +42,7 @@ export const userRouter = createTRPCRouter({
       return {
         email: user.getValue().email,
         name: user.getValue().name,
-        role: user.getValue().role
+        plan: user.getValue().plan
       }
 
     } catch (error) {

@@ -138,14 +138,14 @@ const ProjectCard = (props: ProjectCardProps) => {
         >
 
           <MenuItem onClick={handleViewProjectDetails}>View Details</MenuItem>
-          {project.permissions?.includes('project:update_own') ?
+          {/* {project.permissions?.includes('project:update_own') ?
             <MenuItem onClick={handleUpdateProject}>Update</MenuItem> : null
           }
 
           {
             project.permissions?.includes('project:delete_own') ?
               <MenuItem sx={{ color: 'red' }} onClick={handleDeleteProject}>Delete</MenuItem> : null
-          }
+          } */}
         </Menu>
       </Box>
     </>

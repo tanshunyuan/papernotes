@@ -15,10 +15,9 @@ export class ProjectManagementService {
 
   public async createProject(userId: string, name: string, description: string) {
     try {
-      const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(userId)
-      if(!projectCount) return null
+      const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(userId) ?? 0
 
-      if(projectCount >= ProjectResourceLimits.MAX_PROJECTS_PER_USER) {
+      if (projectCount >= ProjectResourceLimits.MAX_PROJECTS_PER_USER) {
         throw new Error('You have reached the maximum number of projects you can create')
       }
 
@@ -30,43 +29,56 @@ export class ProjectManagementService {
         createdAt: new Date(),
         updatedAt: new Date()
       })
+      console.log('ProjectManagementService.createProject.project', {
+        details: project.getValue()
+      })
       await this.projectRepo.save(project)
     } catch (error) {
       throw new Error(`Error creating project: ${error}`)
     }
   }
 
+  // public async getProjectsByUserId(userId: string) {
+  //   try {
+  //     const canReadAll = await this.authService.canPerformOperation(userId, PROJECT_PERIMSSIONS.READ_ALL);
+  //     if (canReadAll) {
+  //       const allProjects = (await this.projectRepo.getAllProjects()).map(project => {
+  //         const value = project.getValue()
+  //         const permissions = value.userId === userId ? ROLE_PERMISSIONS.ADMIN : undefined
+  //         return {
+  //           ...value,
+  //           permissions
+  //         }
+  //       })
+  //       return allProjects
+  //     }
+
+  //     const canReadOwn = await this.authService.canPerformOperation(userId, PROJECT_PERIMSSIONS.READ_OWN);
+  //     if (canReadOwn) {
+  //       const userProjects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => {
+  //         const value = project.getValue()
+  //         const permissions = value.userId === userId ? ROLE_PERMISSIONS.MEMBER : undefined
+  //         return {
+  //           ...value,
+  //           permissions
+  //         }
+  //       })
+  //       return userProjects
+  //     }
+
+  //     throw new Error('You do not have permission to perform this operation')
+
+  //   } catch (error) {
+  //     throw new Error(`Error getting projects by user id: ${error}`)
+  //   }
+  // }
+
   public async getProjectsByUserId(userId: string) {
     try {
-      const canReadAll = await this.authService.canPerformOperation(userId, PROJECT_PERIMSSIONS.READ_ALL);
-      if (canReadAll) {
-        const allProjects = (await this.projectRepo.getAllProjects()).map(project => {
-          const value = project.getValue()
-          const permissions = value.userId === userId ? ROLE_PERMISSIONS.ADMIN : undefined
-          return {
-            ...value,
-            permissions
-          }
-        })
-        return allProjects
-      }
-
-      const canReadOwn = await this.authService.canPerformOperation(userId, PROJECT_PERIMSSIONS.READ_OWN);
-      if (canReadOwn) {
-        const userProjects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => {
-          const value = project.getValue()
-          const permissions = value.userId === userId ? ROLE_PERMISSIONS.MEMBER : undefined
-          return {
-            ...value,
-            permissions
-          }
-        })
-        return userProjects
-      }
-
-      throw new Error('You do not have permission to perform this operation')
-
-    } catch (error) {
+      const userProjects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => project.getValue())
+      return userProjects
+    }
+    catch (error) {
       throw new Error(`Error getting projects by user id: ${error}`)
     }
   }

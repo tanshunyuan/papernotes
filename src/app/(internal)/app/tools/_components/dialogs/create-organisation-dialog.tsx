@@ -16,6 +16,7 @@ interface CreateOrganisationDialogProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+// @ts-expect-error some stupid error
 const dayjsDate = z.custom((val:string) => {
   return dayjs(val).isValid();
 }, {
@@ -29,7 +30,7 @@ const schema = z.object({
   }),
   startDate: dayjsDate,
   endDate: dayjsDate,
-  maxSeats: z.number().min(1, { message: "Max seats is required" }),
+  maxSeats: z.coerce.number().min(1, { message: "Max seats is required" }),
 })
 
 type Schema = z.infer<typeof schema>;
@@ -62,7 +63,9 @@ export const CreateOrganisationDialog = (props: CreateOrganisationDialogProps) =
         {
           description: data.description,
           name: data.name,
+          //@ts-expect-error some date error
           planDurationStart: dayjs(data.startDate).toDate(),
+          //@ts-expect-error some date error
           planDurationEnd: dayjs(data.endDate).toDate(),
           maxSeats: data.maxSeats
         },
@@ -219,6 +222,8 @@ export const CreateOrganisationDialog = (props: CreateOrganisationDialogProps) =
                 >
                   Start Date
                 </InputLabel>
+
+                {/* @ts-expect-error some date error */}
                 <DatePicker value={field.value}
                   inputRef={field.ref}
                   onChange={(date) => {
@@ -252,6 +257,7 @@ export const CreateOrganisationDialog = (props: CreateOrganisationDialogProps) =
                 >
                   End Date
                 </InputLabel>
+                {/* @ts-expect-error some date error */}
                 <DatePicker value={field.value}
                   inputRef={field.ref}
                   onChange={(date) => {

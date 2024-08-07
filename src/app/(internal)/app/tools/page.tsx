@@ -9,6 +9,8 @@ import { CreateOrganisationDialog } from "./_components/dialogs/create-organisat
 import { useState } from "react";
 import { RouterOutputs } from "~/trpc/shared";
 import { api } from "~/trpc/react";
+import { useRouter } from "next/navigation";
+import { ROUTE_PATHS } from "~/utils/route-paths";
 
 export default function ToolsPage() {
   const [openCreateOrganisationDialog, setOpenCreateOrganisationDialog] = useState(false);
@@ -47,6 +49,7 @@ interface OrganisationGalleryProps {
 }
 const OrganisationItem = (props: OrganisationGalleryProps) => {
   const { organisation } = props
+  const router = useRouter()
 
   return <Box
     sx={{
@@ -63,5 +66,6 @@ const OrganisationItem = (props: OrganisationGalleryProps) => {
     <Typography variant="body1">{organisation.description}</Typography>
     <Typography variant="body1">{organisation.planDurationStart.toDateString()} to {organisation.planDurationEnd.toDateString()}</Typography>
     <Typography variant="body1">Max Seats: {organisation.maxSeats}</Typography>
+    <Button variant="contained" onClick={() => router.push(ROUTE_PATHS.APP.TOOLS.ORGANISATION.DETAILS(organisation.id))}>More</Button>
   </Box>
 }

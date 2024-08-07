@@ -28,3 +28,14 @@ Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/ver
 1. Perfrom basic RBAC on CRUD operations for a project, admin can CRUD a project but member can only CR their own project. Additionally, admin can access a page which sees all the users
 2. Add resource limits to projects, and organisation seats.
 3. Add in organisation and team functionality to further introduce RBAC and resource limits, it'd be interesting to see how admin can only see projects that they are part of and not involve themselves with other organisations
+4. Identify Saas employees and mark them as internal employees, so they can only access the internal tools
+
+## What problem do I want to solve?
+
+### 07/08/2024
+1. Ensure only employees can access the Tools page which allows them to create organisations, and add project & features to organisations
+2. Only allow invited employees to see organisation they're a part of.
+3. Normal platform users can only see their own projects
+4. The platform will have different pricing plans: free and, enterprise
+5. Free won't have roles
+6. Enterprise will have organisational roles

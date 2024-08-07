@@ -23,6 +23,7 @@ import {
 export const createTable = pgTableCreator((name) => `papernotes_${name}`);
 
 export const pgRolesEnum = pgEnum('roles_enum', ['ADMIN', 'MEMBER'])
+export const pgUserPlanEnum = pgEnum('user_plan_enum', ['FREE', 'ENTERPRISE'])
 
 export const userSchema = createTable(
   'users',
@@ -31,7 +32,8 @@ export const userSchema = createTable(
     email: text('email').notNull(),
     name: text('name').notNull(),
     createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
-    role: pgRolesEnum('role').default('MEMBER').notNull(),
+    // role: pgRolesEnum('role').default('MEMBER').notNull(),
+    userPlan: pgUserPlanEnum('user_plan').default('FREE').notNull(),
   }
 )
 

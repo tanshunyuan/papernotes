@@ -61,8 +61,7 @@ const OrganisationItem = (props: OrganisationGalleryProps) => {
   >
     <Typography variant="h6">{organisation.name}</Typography>
     <Typography variant="body1">{organisation.description}</Typography>
-    <Typography variant="body1">{organisation.planDurationStart.toDateString()}</Typography>
-    <Typography variant="body1">{organisation.planDurationEnd.toDateString()}</Typography>
-    <Typography variant="body1">{organisation.maxSeats}</Typography>
+    <Typography variant="body1">{organisation.planDurationStart.toDateString()} to {organisation.planDurationEnd.toDateString()}</Typography>
+    <Typography variant="body1">Max Seats: {organisation.maxSeats}</Typography>
   </Box>
 }

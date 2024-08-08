@@ -1,4 +1,4 @@
-import { projectSchema } from './../../../db/schema';
+import { organisationUsersSchema, projectSchema, userSchema } from './../../../db/schema';
 import { DbService } from '~/server/db';
 import { Project } from '../models/project';
 import { and, count, eq, isNull } from 'drizzle-orm';
@@ -133,5 +133,32 @@ export class ProjectRepository {
     } catch (error) {
       throw new Error(`Error getting all projects: ${error}`)
     }
+  }
+
+  public async getAllOrganisationProjects(organisationId: string) {
+    try {
+
+      const rawResults = await this.dbService.getQueryClient().select().from(projectSchema)
+      .leftJoin(organisationUsersSchema, eq(organisationUsersSchema.userId, projectSchema.userId))
+      .where(eq(organisationUsersSchema.organisationId, organisationId));
+
+      if(!rawResults || rawResults.length === 0) return []
+
+      const projects = rawResults.map(items => {
+        return new Project({
+          id: items.projects.id,
+          name: items.projects.name,
+          userId: items.projects.userId,
+          description: items.projects.description,
+          createdAt: items.projects.createdAt
+        })
+      })
+
+      return projects
+      
+    } catch (error) {
+      throw new Error(`Error getting all projects for organisation: ${error}`)
+    }
+
   }
 }

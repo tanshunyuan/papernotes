@@ -58,10 +58,10 @@ export class ProjectManagementService {
         const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrNull(user.getValue().id)
         if (organisationUser?.getValue().role === 'ADMIN') {
           /**@todo change this to grab project belonging to a ORG, currently it'll grab ALL regardless */
-          const allProjects = (await this.projectRepo.getAllProjects()).map(project => {
+          const allProjects = (await this.projectRepo.getAllOrganisationProjects(organisationUser.getValue().organisationId)).map(project => {
             return {
               ...project.getValue(),
-              permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN
+              permissions: project.getValue().userId === userId ? PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN : null
             }
           })
           return allProjects

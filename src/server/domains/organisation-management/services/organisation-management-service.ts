@@ -129,7 +129,7 @@ export class OrganisationManagementService {
 
       const results = {
         organisation: organisation.getValue(),
-        users: organisationUsers.map(organisationUser => organisationUser.getValue()),
+        users: organisationUsers
       }
 
       return results

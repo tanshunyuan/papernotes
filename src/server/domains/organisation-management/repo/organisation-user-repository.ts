@@ -1,5 +1,5 @@
 import { DbService } from "~/server/db";
-import { OrganisationUser } from "../models/organisation-user";
+import { ORGANISATION_ROLE_ENUM, OrganisationUser } from "../models/organisation-user";
 import { organisationUsersSchema } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -20,10 +20,27 @@ export class OrganisationUserRepository {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationUsersSchema
         .findMany({
-          where: eq(organisationUsersSchema.organisationId, organisationId)
+          where: eq(organisationUsersSchema.organisationId, organisationId),
+          with: {
+            user: {
+              columns: { email: true }
+            }
+          }
         })
       if (!rawResults || rawResults.length === 0) return []
-      const results = rawResults.map(organisationUser => new OrganisationUser(organisationUser))
+      console.log("rawResults", rawResults)
+      const results = rawResults.map(organisationUser => {
+        return {
+          ...new OrganisationUser({
+            id: organisationUser.id,
+            organisationId: organisationUser.organisationId,
+            userId: organisationUser.userId,
+            role: ORGANISATION_ROLE_ENUM[organisationUser.role],
+            createdAt: organisationUser.createdAt,
+            updatedAt: organisationUser.updatedAt
+          }).getValue(), email: organisationUser.user.email
+        }
+      })
       return results
     }
     catch (error) {

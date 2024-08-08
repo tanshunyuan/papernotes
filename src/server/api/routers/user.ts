@@ -1,32 +1,14 @@
 import { userRepository } from "~/server/domains/user-management/repo";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { User, USER_PLAN_ENUM } from "~/server/domains/user-management/models/user";
-import { uuid } from 'uuidv4';
-import { clerkClient } from "@clerk/nextjs/server";
 import { TRPCClientError } from "@trpc/client";
+import { userService } from "~/server/domains/user-management/services";
 
 
 export const userRouter = createTRPCRouter({
   register: protectedProcedure.mutation(async ({ ctx }) => {
     const userId = ctx.auth.userId
     try {
-
-      const existingUser = await userRepository.getUserByIdOrNull(userId)
-
-      if (existingUser) return null
-
-      const clerkUser = await clerkClient.users.getUser(userId)
-
-      const user = new User({
-        id: userId,
-        email: clerkUser.primaryEmailAddress?.emailAddress ?? '',
-        name: `${clerkUser.firstName} ${clerkUser.lastName}`,
-        /**@todo learn how to hide this in the class */
-        plan: USER_PLAN_ENUM.FREE
-      })
-
-      await userRepository.save(user)
-      return
+      await userService.registerExistingClerkUser(userId)
     } catch (e) {
       const error = e as Error
       throw new TRPCClientError(error.message)

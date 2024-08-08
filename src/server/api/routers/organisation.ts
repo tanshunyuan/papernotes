@@ -44,6 +44,48 @@ export const organisationRouter = createTRPCRouter({
         message: error.message
       })
     }
-  })
+  }),
 
+  getOrganisationDetails: protectedProcedure.input(z.object({
+    organisationId: z.string()
+  })).query(async ({ ctx, input }) => {
+    try {
+      const userId = ctx.auth.userId
+      const organisation = await organisationManagementService.getOrganisationDetails(input.organisationId, userId)
+      return organisation
+    } catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  }),
+  addUserToOrganisation: protectedProcedure.input(z.object({
+    organisationId: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    email: z.string(),
+    password: z.string()
+  })).mutation(async ({ ctx, input }) => {
+    try {
+      const userId = ctx.auth.userId
+      await organisationManagementService.addANewUserToOrganisation({
+        currentUserId: userId,
+        organisationId: input.organisationId,
+        data: {
+          email: input.email,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          password: input.password
+        }
+      })
+    } catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  })
 })

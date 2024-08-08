@@ -32,7 +32,6 @@ export const userSchema = createTable(
     email: text('email').notNull(),
     name: text('name').notNull(),
     createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
-    // role: pgRolesEnum('role').default('MEMBER').notNull(),
     userPlan: pgUserPlanEnum('user_plan').default('FREE').notNull(),
   }
 )
@@ -44,7 +43,7 @@ export const userSchemaRelations = relations(userSchema, ({ many }) => ({
 export const projectSchema = createTable('projects', {
   id: text('id').primaryKey().notNull(),
   name: text('name').notNull(),
-  userId: text('user_id').notNull(),
+  userId: text('user_id').references(() => userSchema.id).notNull(),
   description: text('description').notNull(),
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -78,6 +77,7 @@ export const organisationUsersSchema = createTable('organisation_users', {
   id: text('id').primaryKey().notNull(),
   organisationId: text('organisation_id').references(() => organisationSchema.id).notNull(),
   userId: text('user_id').references(() => userSchema.id).notNull(),
+  role: pgRolesEnum('role').notNull(),
   createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
 })

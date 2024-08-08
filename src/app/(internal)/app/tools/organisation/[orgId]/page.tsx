@@ -54,6 +54,7 @@ export default function OrganisationDetailsPage(props: OrganisationDetailsPagePr
                 <Box>
                   <Typography>User Id: {user.id}</Typography>
                   <Typography>User Created At: {user.createdAt.toDateString()}</Typography>
+                  <Typography>User Role: {user.role}</Typography>
                 </Box>
                 <Button variant="contained">Edit User</Button>
               </Box>

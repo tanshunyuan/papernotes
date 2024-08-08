@@ -2,13 +2,14 @@ import { uuid } from "uuidv4";
 import { Organisation } from "../models/organisation";
 import { OrganisationRepository } from "../repo/organisation-repository";
 import { OrganisationUserRepository } from "../repo/organisation-user-repository";
-import { OrganisationUser } from "../models/organisation-user";
+import { ORGANISATION_ROLE_ENUM, OrganisationUser } from "../models/organisation-user";
 import { clerkClient } from '@clerk/nextjs/server';
 import { User, USER_PLAN_ENUM } from "../../user-management/models/user";
 import { UserRepository } from "../../user-management/repo/user-repository";
 
 interface CreateOrganisationArgs {
-  userId: string;
+  /**@description authenticated user id */
+  currentUserId: string;
   name: string;
   description: string;
   planDurationStart: Date;
@@ -27,6 +28,13 @@ interface AddAUserToOrganisationArgs {
     lastName: string
   }
 }
+
+interface UpdateOrganisationUserRoleArgs {
+  currentUserId: string;
+  organisationUserId: string;
+  role: ORGANISATION_ROLE_ENUM;
+}
+
 export class OrganisationManagementService {
   constructor(
     private readonly userRepository: UserRepository,
@@ -58,7 +66,7 @@ export class OrganisationManagementService {
     const { organisationId, currentUserId, data } = args
     try {
       const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
-      if(!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
+      if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
 
       await this.organisationRepository.getOrganisationByIdOrFail(organisationId)
 
@@ -82,7 +90,9 @@ export class OrganisationManagementService {
         organisationId,
         userId: user.getValue().id,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        /**@todo to change this into dynamic */
+        role: ORGANISATION_ROLE_ENUM.MEMBER
       })
 
       await this.userRepository.save(user)
@@ -90,6 +100,23 @@ export class OrganisationManagementService {
 
     } catch (error) {
       throw new Error(`Error creating organisation user: ${error}`)
+    }
+  }
+
+  public async updateOrganisationUserRole(args: UpdateOrganisationUserRoleArgs) {
+    const { currentUserId, organisationUserId, role } = args
+    try {
+      const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
+      if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
+
+      const organisationUser = await this.organisationUserRepository.getOrganisationUserByIdOrFail(organisationUserId)
+      const updatedOrganisationUser = new OrganisationUser({
+        ...organisationUser.getValue(),
+        role,
+      })
+      await this.organisationUserRepository.updateOrganisationUserRole(updatedOrganisationUser)
+    } catch (error) {
+      throw new Error(`Error updating organisation user role: ${error}`)
     }
   }
 

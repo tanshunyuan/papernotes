@@ -45,4 +45,21 @@ export class OrganisationUserRepository {
       throw new Error(`Error getting organisation user by id: ${error}`)
     }
   }
+
+  public async getOrganisationUserByIdOrFail(id: string) {
+    const result = await this.getOrganisationUserByIdOrNull(id)
+    if (!result) throw new Error(`Organisation user not found: ${id}`)
+    return result
+  }
+
+  public async updateOrganisationUserRole(entity: OrganisationUser) {
+    try {
+      await this.dbService.getQueryClient().update(organisationUsersSchema)
+        .set({ ...entity.getValue(), updatedAt: new Date() })
+        .where(eq(organisationUsersSchema.id, entity.getValue().id))
+    }
+    catch (error) {
+      throw new Error(`Error updating organisation user role: ${error}`)
+    }
+  }
 }

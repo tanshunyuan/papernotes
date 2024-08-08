@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { organisationManagementService } from "~/server/domains/organisation-management/services";
 import { z } from "zod";
+import { ORGANISATION_ROLE_ENUM } from "~/server/domains/organisation-management/models/organisation-user";
 
 const createOrganisationValidator = z.object({
   name: z.string(),
@@ -16,7 +17,7 @@ export const organisationRouter = createTRPCRouter({
     try {
       const userId = ctx.auth.userId
       await organisationManagementService.createOrganisation({
-        userId,
+        currentUserId: userId,
         name: input.name,
         description: input.description,
         planDurationStart: input.planDurationStart,
@@ -79,6 +80,25 @@ export const organisationRouter = createTRPCRouter({
           lastName: input.lastName,
           password: input.password
         }
+      })
+    } catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  }),
+  updateOrganisationUserRole: protectedProcedure.input(z.object({
+    organisationUserId: z.string(),
+    role: z.enum(['ADMIN', 'MEMBER'])
+  })).mutation(async ({ ctx, input }) => {
+    try {
+      const currentUserId = ctx.auth.userId
+      await organisationManagementService.updateOrganisationUserRole({
+        currentUserId,
+        organisationUserId: input.organisationUserId,
+        role: ORGANISATION_ROLE_ENUM[input.role]
       })
     } catch (e) {
       const error = e as Error

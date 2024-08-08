@@ -1,29 +1,39 @@
+import { pgUserPlanEnum } from './../../../db/schema';
 export const PROJECT_PERIMSSIONS = {
   CREATE: 'project:create',
-  READ_OWN: 'project:read_own',
+  READ: 'project:read',
   READ_ALL: 'project:read_all',
-  UPDATE_OWN: 'project:update_own',
-  DELETE_OWN: 'project:delete_own',
+  UPDATE: 'project:update',
+  DELETE: 'project:delete',
 } as const
 
-export const ROLE_PERMISSIONS = {
-  ADMIN: [
+/**@see {@link pgUserPlanEnum} */
+export const PLAN_BASED_ROLE_PERMISSION = {
+  FREE: [
     PROJECT_PERIMSSIONS.CREATE,
-    PROJECT_PERIMSSIONS.READ_OWN,
-    PROJECT_PERIMSSIONS.READ_ALL,
-    PROJECT_PERIMSSIONS.UPDATE_OWN,
-    PROJECT_PERIMSSIONS.DELETE_OWN
+    PROJECT_PERIMSSIONS.READ,
+    PROJECT_PERIMSSIONS.UPDATE,
   ],
-  MEMBER: [
-    PROJECT_PERIMSSIONS.READ_OWN,
-    PROJECT_PERIMSSIONS.CREATE,
-    PROJECT_PERIMSSIONS.UPDATE_OWN,
-    PROJECT_PERIMSSIONS.DELETE_OWN
-  ]
+  ENTERPRISE: {
+    ADMIN: [
+      PROJECT_PERIMSSIONS.CREATE,
+      PROJECT_PERIMSSIONS.READ,
+      PROJECT_PERIMSSIONS.READ_ALL,
+      PROJECT_PERIMSSIONS.UPDATE,
+      PROJECT_PERIMSSIONS.DELETE
+    ],
+    MEMBER: [
+      PROJECT_PERIMSSIONS.READ,
+      PROJECT_PERIMSSIONS.CREATE,
+      PROJECT_PERIMSSIONS.UPDATE,
+      PROJECT_PERIMSSIONS.DELETE
+    ]
+  }
 } as const
+
 
 
 type ProjectPermission = typeof PROJECT_PERIMSSIONS[keyof typeof PROJECT_PERIMSSIONS]
 
-export type Role = keyof typeof ROLE_PERMISSIONS
+export type Plans = keyof typeof PLAN_BASED_ROLE_PERMISSION
 export type Permissions = ProjectPermission

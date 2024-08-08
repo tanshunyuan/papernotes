@@ -55,11 +55,39 @@ export class OrganisationUserRepository {
           where: eq(organisationUsersSchema.id, id)
         })
       if (!rawResults) return null
-      const result = new OrganisationUser(rawResults)
+      const result = new OrganisationUser({
+        id: rawResults.id,
+        organisationId: rawResults.organisationId,
+        userId: rawResults.userId,
+        role: ORGANISATION_ROLE_ENUM[rawResults.role],
+        createdAt: rawResults.createdAt,
+        updatedAt: rawResults.updatedAt
+      })
       return result
     }
     catch (error) {
       throw new Error(`Error getting organisation user by id: ${error}`)
+    }
+  }
+
+  public async getOrganisationUserByUserIdOrNull(userId: string) {
+    try {
+      const rawResults = await this.dbService.getQueryClient().query.organisationUsersSchema.findFirst({
+        where: eq(organisationUsersSchema.userId, userId)
+      })
+
+      if (!rawResults) return null
+      const result = new OrganisationUser({
+        id: rawResults.id,
+        organisationId: rawResults.organisationId,
+        userId: rawResults.userId,
+        role: ORGANISATION_ROLE_ENUM[rawResults.role],
+        createdAt: rawResults.createdAt,
+        updatedAt: rawResults.updatedAt
+      })
+      return result
+    } catch (error) {
+      throw new Error(`Error getting organisation user by user id: ${error}`)
     }
   }
 

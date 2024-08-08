@@ -207,7 +207,7 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
                 fontSize: "0.875rem",
                 paddingInline: "1.75rem",
               }}
-              disabled={!isValid || projectCreateMutation.isPending || projectCreateMutation.isSuccess}
+              disabled={!isValid || projectCreateMutation.isPending}
               type="submit"
               color="primary"
               variant="contained"

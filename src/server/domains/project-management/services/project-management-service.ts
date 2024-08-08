@@ -1,15 +1,19 @@
-import { PROJECT_PERIMSSIONS, ROLE_PERMISSIONS } from './../../authorisation/utils/permissions';
+import { PLAN_BASED_ROLE_PERMISSION, PROJECT_PERIMSSIONS } from './../../authorisation/utils/permissions';
 import { ProjectRepository } from "../repo/project-repository";
 import { AuthorisationService } from '../../authorisation/services/authorisation-service';
 import { Project } from '../models/project';
 import { uuid } from 'uuidv4';
 import { ProjectResourceLimits } from '../../authorisation/utils/resource-limits';
+import { UserRepository } from '../../user-management/repo/user-repository';
+import { OrganisationUserRepository } from '../../organisation-management/repo/organisation-user-repository';
 
 // food for thought, currently using read_all permission to get all projects is ok when there's no organisation structure.
 // But if there is, it'll bit a tad more complicated to implement.
 export class ProjectManagementService {
   constructor(
     private readonly projectRepo: ProjectRepository,
+    private readonly userRepo: UserRepository,
+    private readonly organisationUserRepo: OrganisationUserRepository,
     private readonly authService: AuthorisationService
   ) { }
 
@@ -38,50 +42,48 @@ export class ProjectManagementService {
     }
   }
 
-  // public async getProjectsByUserId(userId: string) {
-  //   try {
-  //     const canReadAll = await this.authService.canPerformOperation(userId, PROJECT_PERIMSSIONS.READ_ALL);
-  //     if (canReadAll) {
-  //       const allProjects = (await this.projectRepo.getAllProjects()).map(project => {
-  //         const value = project.getValue()
-  //         const permissions = value.userId === userId ? ROLE_PERMISSIONS.ADMIN : undefined
-  //         return {
-  //           ...value,
-  //           permissions
-  //         }
-  //       })
-  //       return allProjects
-  //     }
-
-  //     const canReadOwn = await this.authService.canPerformOperation(userId, PROJECT_PERIMSSIONS.READ_OWN);
-  //     if (canReadOwn) {
-  //       const userProjects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => {
-  //         const value = project.getValue()
-  //         const permissions = value.userId === userId ? ROLE_PERMISSIONS.MEMBER : undefined
-  //         return {
-  //           ...value,
-  //           permissions
-  //         }
-  //       })
-  //       return userProjects
-  //     }
-
-  //     throw new Error('You do not have permission to perform this operation')
-
-  //   } catch (error) {
-  //     throw new Error(`Error getting projects by user id: ${error}`)
-  //   }
-  // }
-
   public async getProjectsByUserId(userId: string) {
     try {
-      const userProjects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => project.getValue())
-      return userProjects
+      const user = await this.userRepo.getUserByIdOrFail(userId)
+
+      if (user.getValue().plan === 'FREE') {
+        const projects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => ({
+          ...project.getValue(),
+          permissions: PLAN_BASED_ROLE_PERMISSION.FREE
+        }))
+        return projects
+      }
+
+      if (user.getValue().plan === 'ENTERPRISE') {
+        const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrNull(user.getValue().id)
+        if (organisationUser?.getValue().role === 'ADMIN') {
+          /**@todo change this to grab project belonging to a ORG, currently it'll grab ALL regardless */
+          const allProjects = (await this.projectRepo.getAllProjects()).map(project => {
+            return {
+              ...project.getValue(),
+              permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN
+            }
+          })
+          return allProjects
+        }
+
+        if (organisationUser?.getValue().role === 'MEMBER') {
+          const projects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => ({
+            ...project.getValue(),
+            permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER
+          }))
+          return projects
+        }
+
+        throw new Error('User is not a member of an organisation')
+      }
     }
+
     catch (error) {
       throw new Error(`Error getting projects by user id: ${error}`)
     }
   }
+
 
   public async updateProject(userId: string, projectId: string, name: string, description: string) {
     try {

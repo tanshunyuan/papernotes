@@ -69,7 +69,7 @@ const ProjectLimits = () => {
 }
 
 interface ProjectCardProps {
-  project: RouterOutputs['project']['getProjectsByUserId'][number];
+  project: NonNullable<RouterOutputs['project']['getProjectsByUserId']>[number];
 }
 const ProjectCard = (props: ProjectCardProps) => {
   const { project } = props;
@@ -154,6 +154,7 @@ const ProjectCard = (props: ProjectCardProps) => {
           }
 
           {
+            // @ts-expect-error ignore this
             project.permissions?.includes('project:delete') ?
               <MenuItem sx={{ color: 'red' }} onClick={handleDeleteProject}>Delete</MenuItem> : null
           }

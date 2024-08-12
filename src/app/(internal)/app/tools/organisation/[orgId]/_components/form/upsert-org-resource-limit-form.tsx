@@ -186,7 +186,7 @@ export const UpsertOrgResourcesForm = (props: UpsertOrgResourcesFormProps) => {
                   fontSize: "0.875rem",
                   paddingInline: "1.75rem",
                 }}
-                disabled={!isValid || updateOrgResourcesMutation.isPending || updateOrgResourcesMutation.isSuccess}
+                disabled={!isValid || updateOrgResourcesMutation.isPending }
                 type="submit"
                 color="primary"
                 variant="contained"

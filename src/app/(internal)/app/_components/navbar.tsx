@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "~/utils/route-paths";
 import Link from "next/link";
 import { api } from "~/trpc/react";
+import { USER_PLAN_ENUM } from "~/server/domains/user-management/models/user";
 
 export const AppNavbar = () => {
   const { signOut } = useClerk()
@@ -46,6 +47,15 @@ export const AppNavbar = () => {
                 Tools
               </Link>
             </Typography> : null
+          }
+
+          {
+            userQuery.data?.plan === USER_PLAN_ENUM.ENTERPRISE ?
+              <Typography>
+                <Link href={ROUTE_PATHS.APP.ORGANISATION.HOME}>
+                  Organisation
+                </Link>
+              </Typography> : null
           }
         </Box>
 

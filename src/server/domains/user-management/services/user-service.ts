@@ -5,11 +5,13 @@ import { OrganisationUserRepository } from "../../organisation-management/repo/o
 import { ProjectResourceLimits } from "../../authorisation/utils/resource-limits";
 import { ProjectRepository } from "../../project-management/repo/project-repository";
 import { OrganisationResourceLimitsRepository } from "../../organisation-management/repo/organisation-resource-limits-repository";
+import { OrganisationRepository } from "../../organisation-management/repo/organisation-repository";
 
 export class UserService {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly projectRepo: ProjectRepository,
+    private readonly organisationRepo: OrganisationRepository,
     private readonly organisationUserRepo: OrganisationUserRepository,
     private readonly organisationResourceLimitsRepo: OrganisationResourceLimitsRepository
   ) { }
@@ -32,6 +34,32 @@ export class UserService {
       await this.userRepo.save(user)
     } catch (error) {
       throw new Error(`Error registering user: ${error}`)
+    }
+  }
+
+  public async getUserDetails(userId: string) {
+    const user = await this.userRepo.getUserByIdOrFail(userId)
+
+    if (user.getValue().plan === USER_PLAN_ENUM.FREE) {
+      return {
+        email: user.getValue().email,
+        name: user.getValue().name,
+        plan: user.getValue().plan
+      }
+    }
+
+    if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
+      const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(userId)
+      const organisation = await this.organisationRepo.getOrganisationByIdOrFail(organisationUser.getValue().organisationId)
+
+      return {
+        email: user.getValue().email,
+        name: user.getValue().name,
+        plan: user.getValue().plan,
+        organisation: {
+          name: organisation.getValue().name,
+        }
+      }
     }
   }
 

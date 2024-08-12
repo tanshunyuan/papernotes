@@ -7,6 +7,9 @@ export const ROUTE_PATHS = {
       HOME: '/app/projects',
       DETAILS: (id: string) => `/app/projects/${id}`
     },
+    ORGANISATION: {
+      HOME: '/app/organisation',
+    },
     TOOLS: {
       HOME: '/app/tools',
       ORGANISATION: {

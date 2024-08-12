@@ -18,15 +18,7 @@ export const userRouter = createTRPCRouter({
   getUserDetails: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.auth.userId
     try {
-      const user = await userRepository.getUserByIdOrNull(userId)
-      if (!user) throw new Error('User not found')
-
-      return {
-        email: user.getValue().email,
-        name: user.getValue().name,
-        plan: user.getValue().plan
-      }
-
+      return await userService.getUserDetails(userId)
     } catch (error) {
       const errorMessage = error as Error
       throw new TRPCClientError(errorMessage.message)

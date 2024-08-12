@@ -64,6 +64,13 @@
       "when": 1723102610104,
       "tag": "0008_bright_meggan",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1723357350887,
+      "tag": "0009_chemical_magdalene",
+      "breakpoints": true
     }
   ]
 }

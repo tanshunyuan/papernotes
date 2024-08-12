@@ -5,6 +5,7 @@ import { relations, sql } from "drizzle-orm";
 import {
   index,
   integer,
+  json,
   pgEnum,
   pgTableCreator,
   serial,
@@ -69,8 +70,24 @@ export const organisationSchema = createTable('organisations', {
   deletedAt: timestamp('deleted_at')
 })
 
-export const organisationSchemaRelations = relations(organisationSchema, ({ many }) => ({
-  users: many(organisationUsersSchema)
+export const organisationSchemaRelations = relations(organisationSchema, ({ many, one }) => ({
+  organisation_users: many(organisationUsersSchema),
+  resource_limits: one(organisationResourceLimitsSchema)
+}))
+
+export const organisationResourceLimitsSchema = createTable('organisation_resource_limits', {
+  id: text('id').primaryKey().notNull(),
+  orgId: text('org_id').references(() => organisationSchema.id).notNull().unique(),
+  configuration: json('configuration').notNull(),
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+})
+
+export const organisationResourceLimitsSchemaRelations = relations(organisationResourceLimitsSchema, ({ one }) => ({
+  organisation: one(organisationSchema, {
+    fields: [organisationResourceLimitsSchema.orgId],
+    references: [organisationSchema.id]
+  })
 }))
 
 export const organisationUsersSchema = createTable('organisation_users', {

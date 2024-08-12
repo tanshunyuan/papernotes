@@ -12,6 +12,13 @@ const createOrganisationValidator = z.object({
   maxSeats: z.number()
 })
 
+const upsertOrganisationResourceLimitsValidator = z.object({
+  orgId: z.string(),
+  projectLimit: z.number(),
+  projectResetDuration: z.number(),
+  featureLimit: z.number()
+})
+
 export const organisationRouter = createTRPCRouter({
   createOrganisation: protectedProcedure.input(createOrganisationValidator).mutation(async ({ ctx, input }) => {
     try {
@@ -99,6 +106,24 @@ export const organisationRouter = createTRPCRouter({
         currentUserId,
         organisationUserId: input.organisationUserId,
         role: ORGANISATION_ROLE_ENUM[input.role]
+      })
+    } catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  }),
+  upsertOrganisationResourceLimits: protectedProcedure.input(upsertOrganisationResourceLimitsValidator).mutation(async ({ ctx, input }) => {
+    try {
+      const currentUserId = ctx.auth.userId
+      await organisationManagementService.upsertOrganisationResourceLimits({
+        currentUserId,
+        organisationId: input.orgId,
+        projectLimit: input.projectLimit,
+        projectResetDuration: input.projectResetDuration,
+        featureLimit: input.featureLimit
       })
     } catch (e) {
       const error = e as Error

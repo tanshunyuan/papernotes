@@ -5,6 +5,7 @@ import { api } from "~/trpc/react";
 import { AddOrgUserDialog } from "./_components/dialogs/add-org-user-dialog";
 import { useState } from "react";
 import { UpdateOrgUserDialog } from "./_components/dialogs/update-org-user-dialog";
+import { UpsertOrgResourcesForm } from "./_components/form/upsert-org-resource-limit-form";
 
 interface OrganisationDetailsPageProps {
   params: {
@@ -57,6 +58,11 @@ export default function OrganisationDetailsPage(props: OrganisationDetailsPagePr
           <Typography>Organisation Max Seats: {organisationDetailsQuery.data.organisation.maxSeats}</Typography>
           <Typography>Organisation Created At: {organisationDetailsQuery.data.organisation.createdAt.toDateString()}</Typography>
         </Box>
+        <Divider />
+        <UpsertOrgResourcesForm
+          orgId={organisationDetailsQuery.data.organisation.id}
+          resourceLimits={organisationDetailsQuery.data.resourceLimits}
+        />
         <Divider />
         <Box>
           {organisationDetailsQuery.data.users.map((user) => (

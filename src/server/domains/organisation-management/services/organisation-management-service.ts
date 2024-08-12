@@ -6,6 +6,8 @@ import { ORGANISATION_ROLE_ENUM, OrganisationUser } from "../models/organisation
 import { clerkClient } from '@clerk/nextjs/server';
 import { User, USER_PLAN_ENUM } from "../../user-management/models/user";
 import { UserRepository } from "../../user-management/repo/user-repository";
+import { OrganisationResourceLimitsRepository } from '../repo/organisation-resource-limits-repository';
+import { OrganisationResourceLimits } from "../models/organisation-resource-limits";
 
 interface CreateOrganisationArgs {
   /**@description authenticated user id */
@@ -35,13 +37,24 @@ interface UpdateOrganisationUserRoleArgs {
   role: ORGANISATION_ROLE_ENUM;
 }
 
+interface UpdateOrganisationResourceLimitsArgs {
+  currentUserId: string;
+  organisationId: string;
+  projectLimit: number;
+  featureLimit: number;
+  projectResetDuration: number;
+}
+
+
 export class OrganisationManagementService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly organisationRepository: OrganisationRepository,
-    private readonly organisationUserRepository: OrganisationUserRepository
+    private readonly organisationUserRepository: OrganisationUserRepository,
+    private readonly organisationResourceLimitsRepository: OrganisationResourceLimitsRepository
   ) { }
 
+  /**@todo need to add fn to add in resource limits & number of seats */
   public async createOrganisation(args: CreateOrganisationArgs) {
     /**@todo need to add rule to only allow internal employee to create organisation */
     try {
@@ -103,6 +116,7 @@ export class OrganisationManagementService {
     }
   }
 
+  /**@todo might want to consider adding a fn to centralise updates to organisation */
   public async updateOrganisationUserRole(args: UpdateOrganisationUserRoleArgs) {
     const { currentUserId, organisationUserId, role } = args
     try {
@@ -120,17 +134,79 @@ export class OrganisationManagementService {
     }
   }
 
-  public async getOrganisationDetails(organisationId: string, userId: string) {
+  public async upsertOrganisationResourceLimits(args: UpdateOrganisationResourceLimitsArgs) {
+    const { currentUserId, organisationId, projectLimit, featureLimit, projectResetDuration } = args;
     try {
-      /**@todo  need to add rule to only allow organisation user to get organisation details */
+      const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
+      if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation');
+
+      const organisationResourceLimits = await this.organisationResourceLimitsRepository.getResourceLimitsByOrganisationIdOrNull(organisationId);
+      if (!organisationResourceLimits) {
+        const configuration = {
+          resources: {
+            project: {
+              limit: projectLimit,
+              reset_duration_days: projectResetDuration
+            },
+            feature: {
+              limit: featureLimit,
+              reset_duration_days: null
+            }
+          }
+        }
+        const organisationResourceLimits = new OrganisationResourceLimits({
+          id: uuid(),
+          orgId: organisationId,
+          configuration,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        await this.organisationResourceLimitsRepository.save(organisationResourceLimits);
+
+      } else {
+        const updatedConfiguration = {
+          ...organisationResourceLimits.getValue().configuration,
+          resources: {
+            project: {
+              limit: projectLimit,
+              reset_duration_days: projectResetDuration
+            },
+            feature: {
+              limit: featureLimit,
+              reset_duration_days: null
+            }
+          }
+        };
+
+        const updatedOrganisationResourceLimits = new OrganisationResourceLimits({
+          ...organisationResourceLimits.getValue(),
+          configuration: updatedConfiguration,
+        });
+
+        await this.organisationResourceLimitsRepository.update(updatedOrganisationResourceLimits);
+      }
+
+    } catch (error) {
+      throw new Error(`Error updating organisation resource limits: ${error}`);
+    }
+  }
+
+
+  public async getOrganisationDetails(organisationId: string, currentUserId: string) {
+    try {
+      const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
+      if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
 
       const organisation = await this.organisationRepository.getOrganisationByIdOrFail(organisationId)
       const organisationUsers = await this.organisationUserRepository.getAllOrganisationUsers(organisationId)
+      const organisationResourceLimits = await this.organisationResourceLimitsRepository.getResourceLimitsByOrganisationIdOrNull(organisationId)
 
       const results = {
         organisation: organisation.getValue(),
-        users: organisationUsers
+        users: organisationUsers,
+        resourceLimits: organisationResourceLimits?.getValue() ?? null
       }
+      console.log(results)
 
       return results
     } catch (error) {
@@ -139,9 +215,11 @@ export class OrganisationManagementService {
   }
 
 
-  public async getAllOrganisations(userId: string) {
+  public async getAllOrganisations(currentUserId: string) {
     try {
-      /**@todo  need to add rule to only allow organisation user to get organisation details */
+      const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
+      if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
+
       const organisations = await this.organisationRepository.getAllOrganisations()
       return organisations.map(organisation => organisation.getValue())
     } catch (error) {

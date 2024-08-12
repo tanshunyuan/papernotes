@@ -1,7 +1,7 @@
 import { DbService } from '~/server/db';
 import { Organisation } from './../models/organisation';
 import { organisationSchema } from '~/server/db/schema';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, count, eq, isNull } from 'drizzle-orm';
 import { OrganisationMapper } from '../mappers';
 
 export class OrganisationRepository {
@@ -17,7 +17,7 @@ export class OrganisationRepository {
       throw new Error(`Error saving organisation: ${error}`)
     }
   }
-  
+
   public async update(entity: Organisation) {
     try {
       const repoValue = this.mapper.toRepo(entity);
@@ -31,7 +31,7 @@ export class OrganisationRepository {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationSchema
         .findMany({
-          where: isNull(organisationSchema.deletedAt)
+          where: isNull(organisationSchema.deletedAt),
         })
       if (!rawResults || rawResults.length === 0) return []
       const results = rawResults.map(organisation => this.mapper.toDomain(organisation))

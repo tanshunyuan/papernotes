@@ -38,6 +38,16 @@ export class OrganisationResourceLimitsRepository {
     }
   }
 
+  public async getResourceLimitsByOrganisationIdOrFail(organisationId: string) {
+    try {
+      const results = await this.getResourceLimitsByOrganisationIdOrNull(organisationId)
+      if (!results) throw new Error(`Resource limits not found for organisation id: ${organisationId}`)
+      return results
+    } catch (error) {
+      throw new Error(`Error getting resource limits by organisation id: ${error}`)
+    }
+  }
+
   public async getResourceLimitsByIdOrNull(id: string) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationResourceLimitsSchema

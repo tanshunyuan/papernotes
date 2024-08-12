@@ -6,6 +6,9 @@ import { uuid } from 'uuidv4';
 import { ProjectResourceLimits } from '../../authorisation/utils/resource-limits';
 import { UserRepository } from '../../user-management/repo/user-repository';
 import { OrganisationUserRepository } from '../../organisation-management/repo/organisation-user-repository';
+import { USER_PLAN_ENUM } from '../../user-management/models/user';
+import { ORGANISATION_ROLE_ENUM } from '../../organisation-management/models/organisation-user';
+import { OrganisationResourceLimitsRepository } from '../../organisation-management/repo/organisation-resource-limits-repository';
 
 // food for thought, currently using read_all permission to get all projects is ok when there's no organisation structure.
 // But if there is, it'll bit a tad more complicated to implement.
@@ -14,17 +17,41 @@ export class ProjectManagementService {
     private readonly projectRepo: ProjectRepository,
     private readonly userRepo: UserRepository,
     private readonly organisationUserRepo: OrganisationUserRepository,
+    private readonly organisationResourceLimitsRepo: OrganisationResourceLimitsRepository,
     private readonly authService: AuthorisationService
   ) { }
 
   public async createProject(userId: string, name: string, description: string) {
     try {
+      const userDetails = await this.userRepo.getUserByIdOrFail(userId)
       const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(userId) ?? 0
 
-      if (projectCount >= ProjectResourceLimits.MAX_PROJECTS_PER_USER) {
-        throw new Error('You have reached the maximum number of projects you can create')
+      console.log('ProjectManagementService.createProject', {
+        projectCount
+      })
+
+      if (userDetails.getValue().plan === USER_PLAN_ENUM.FREE) {
+        if (projectCount >= ProjectResourceLimits.MAX_PROJECTS_PER_USER) {
+          throw new Error('You have reached the maximum number of projects you can create')
+        }
       }
 
+      if (userDetails.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
+        const organisationUserDetails = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(userDetails.getValue().id)
+        const organisationResourceLimits = await this.organisationResourceLimitsRepo.getResourceLimitsByOrganisationIdOrFail(organisationUserDetails.getValue().organisationId)
+
+        console.log('ProjectManagementService.if.enterprise', {
+          details: {
+            limits: organisationResourceLimits?.getValue(),
+          }
+        })
+
+        if (projectCount >= organisationResourceLimits?.getValue().configuration.resources.project.limit) {
+          throw new Error('You have reached the maximum number of projects you can create')
+        }
+      }
+
+      /**@todo figure out another way to handle this */
       const project = new Project({
         id: uuid(),
         name,
@@ -46,7 +73,7 @@ export class ProjectManagementService {
     try {
       const user = await this.userRepo.getUserByIdOrFail(userId)
 
-      if (user.getValue().plan === 'FREE') {
+      if (user.getValue().plan === USER_PLAN_ENUM.FREE) {
         const projects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => ({
           ...project.getValue(),
           permissions: PLAN_BASED_ROLE_PERMISSION.FREE
@@ -54,10 +81,9 @@ export class ProjectManagementService {
         return projects
       }
 
-      if (user.getValue().plan === 'ENTERPRISE') {
+      if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
         const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrNull(user.getValue().id)
-        if (organisationUser?.getValue().role === 'ADMIN') {
-          /**@todo change this to grab project belonging to a ORG, currently it'll grab ALL regardless */
+        if (organisationUser?.getValue().role === ORGANISATION_ROLE_ENUM.ADMIN) {
           const allProjects = (await this.projectRepo.getAllOrganisationProjects(organisationUser.getValue().organisationId)).map(project => {
             return {
               ...project.getValue(),
@@ -67,7 +93,7 @@ export class ProjectManagementService {
           return allProjects
         }
 
-        if (organisationUser?.getValue().role === 'MEMBER') {
+        if (organisationUser?.getValue().role === ORGANISATION_ROLE_ENUM.MEMBER) {
           const projects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => ({
             ...project.getValue(),
             permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER

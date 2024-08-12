@@ -70,6 +70,12 @@ export class OrganisationUserRepository {
     }
   }
 
+  public async getOrganisationUserByIdOrFail(id: string) {
+    const result = await this.getOrganisationUserByIdOrNull(id)
+    if (!result) throw new Error(`Organisation user not found: ${id}`)
+    return result
+  }
+
   public async getOrganisationUserByUserIdOrNull(userId: string) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationUsersSchema.findFirst({
@@ -91,9 +97,9 @@ export class OrganisationUserRepository {
     }
   }
 
-  public async getOrganisationUserByIdOrFail(id: string) {
-    const result = await this.getOrganisationUserByIdOrNull(id)
-    if (!result) throw new Error(`Organisation user not found: ${id}`)
+  public async getOrganisationUserByUserIdOrFail(userId: string) {
+    const result = await this.getOrganisationUserByUserIdOrNull(userId)
+    if (!result) throw new Error(`Organisation user not found: ${userId}`)
     return result
   }
 

@@ -31,5 +31,16 @@ export const userRouter = createTRPCRouter({
       const errorMessage = error as Error
       throw new TRPCClientError(errorMessage.message)
     }
+  }),
+
+  getUserResourceLimits: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.auth.userId
+    try {
+      const resourceLimits = await userService.getUserResourceLimits(userId)
+      return resourceLimits
+    } catch (error) {
+      const errorMessage = error as Error
+      throw new TRPCClientError(errorMessage.message)
+    }
   })
 })

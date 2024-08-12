@@ -33,7 +33,7 @@ export default function ProjectsPage() {
       open={openProjectDialog}
       setOpen={setOpenProjectDialog}
     />
-
+    <ProjectLimits />
     {isProjectsEmpty ? <Box>
       <Typography variant="h4">No projects found</Typography>
       <Button onClick={handleCreateProject}>Create</Button>
@@ -56,6 +56,17 @@ export default function ProjectsPage() {
   </Box>
 }
 
+const ProjectLimits = () => {
+  const userResourceLimitsQuery = api.user.getUserResourceLimits.useQuery();
+  if (userResourceLimitsQuery.isLoading) return <div>Loading...</div>
+  return <Box>
+    <Typography variant="h4">Project Limits</Typography>
+    <pre>
+      {JSON.stringify(userResourceLimitsQuery.data, null, 2)}
+    </pre>
+  </Box>
+
+}
 
 interface ProjectCardProps {
   project: RouterOutputs['project']['getProjectsByUserId'][number];

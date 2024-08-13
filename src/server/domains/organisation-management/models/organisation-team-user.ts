@@ -1,14 +1,14 @@
-import { type Organisation } from "./organisation";
+import { type OrganisationTeam } from "./organisation-team";
 import { type OrganisationUser } from "./organisation-user";
 
 interface OrganisationTeamUserProps {
-  organisationId: Organisation['props']['id'];
+  organisationTeamId: OrganisationTeam['props']['id'];
   organisationUserId: OrganisationUser['props']['id'];
   joinedAt: Date;
   leftAt: Date | null;
 }
 
-export class OrganisationTeam {
+export class OrganisationTeamUser {
   constructor(private readonly props: OrganisationTeamUserProps) {}
 
   public getValue() {

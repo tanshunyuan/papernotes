@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS "papernotes_organisation_team_users" (
-	"organisation_id" text NOT NULL,
+	"organisation_team_id" text NOT NULL,
 	"organisation_user_id" text NOT NULL,
 	"joined_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"left_at" timestamp,
-	CONSTRAINT "papernotes_organisation_team_users_organisation_id_organisation_user_id_pk" PRIMARY KEY("organisation_id","organisation_user_id")
+	CONSTRAINT "papernotes_organisation_team_users_organisation_team_id_organisation_user_id_pk" PRIMARY KEY("organisation_team_id","organisation_user_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "papernotes_organisation_teams" (
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS "papernotes_organisation_teams" (
 );
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "papernotes_organisation_team_users" ADD CONSTRAINT "papernotes_organisation_team_users_organisation_id_papernotes_organisations_id_fk" FOREIGN KEY ("organisation_id") REFERENCES "papernotes_organisations"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "papernotes_organisation_team_users" ADD CONSTRAINT "papernotes_organisation_team_users_organisation_team_id_papernotes_organisation_teams_id_fk" FOREIGN KEY ("organisation_team_id") REFERENCES "papernotes_organisation_teams"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

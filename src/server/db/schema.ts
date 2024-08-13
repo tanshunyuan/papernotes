@@ -76,7 +76,6 @@ export const organisationSchemaRelations = relations(organisationSchema, ({ many
   // only resource limit needs to have the foreign key connection
   resource_limits: one(organisationResourceLimitsSchema),
   organisation_teams: many(organisationTeamsSchema),
-  organisation_team_users: many(organisationTeamUsersSchema)
 }))
 
 export const organisationResourceLimitsSchema = createTable('organisation_resource_limits', {
@@ -103,7 +102,7 @@ export const organisationUsersSchema = createTable('organisation_users', {
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
 })
 
-export const organisationUsersSchemaRelations = relations(organisationUsersSchema, ({ one }) => ({
+export const organisationUsersSchemaRelations = relations(organisationUsersSchema, ({ one, many }) => ({
   organisation: one(organisationSchema, {
     fields: [organisationUsersSchema.organisationId],
     references: [organisationSchema.id]
@@ -111,7 +110,8 @@ export const organisationUsersSchemaRelations = relations(organisationUsersSchem
   user: one(userSchema, {
     fields: [organisationUsersSchema.userId],
     references: [userSchema.id]
-  })
+  }),
+  organisation_team_users: many(organisationTeamUsersSchema)
 }))
 
 export const organisationTeamsSchema = createTable('organisation_teams', {
@@ -132,20 +132,20 @@ export const organisationTeamsSchemaRelations = relations(organisationTeamsSchem
 }))
 
 export const organisationTeamUsersSchema = createTable('organisation_team_users', {
-  organisationId: text('organisation_id').references(() => organisationSchema.id).notNull(),
+  organisationTeamId: text('organisation_team_id').references(() => organisationTeamsSchema.id).notNull(),
   organisationUserId: text('organisation_user_id').references(() => organisationUsersSchema.id).notNull(),
   joinedAt: timestamp('joined_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   leftAt: timestamp('left_at')
 }, (t) => ({
   pk: primaryKey({
-    columns: [t.organisationId, t.organisationUserId]
+    columns: [t.organisationTeamId, t.organisationUserId]
   })
 }))
 
 export const organisationTeamUsersRelations = relations(organisationTeamUsersSchema, ({ one }) => ({
-  organisation: one(organisationSchema, {
-    fields: [organisationTeamUsersSchema.organisationId],
-    references: [organisationSchema.id],
+  organisation_team: one(organisationTeamsSchema, {
+    fields: [organisationTeamUsersSchema.organisationTeamId],
+    references: [organisationTeamsSchema.id],
   }),
   organisation_user: one(organisationUsersSchema, {
     fields: [organisationTeamUsersSchema.organisationUserId],

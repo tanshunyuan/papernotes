@@ -7,6 +7,14 @@ export const PROJECT_PERIMSSIONS = {
   DELETE: 'project:delete',
 } as const
 
+export const ORGANISATION_TEAM_PERMISSIONS = {
+  MANAGE: 'organisation-team:manage',
+  CREATE: 'organisation-team:create',
+  READ: 'organisation-team:read',
+  UPDATE: 'organisation-team:update',
+  DELETE: 'organisation-team:delete',
+}
+
 /**@see {@link pgUserPlanEnum} */
 export const PLAN_BASED_ROLE_PERMISSION = {
   FREE: [
@@ -20,7 +28,8 @@ export const PLAN_BASED_ROLE_PERMISSION = {
       PROJECT_PERIMSSIONS.READ,
       PROJECT_PERIMSSIONS.READ_ALL,
       PROJECT_PERIMSSIONS.UPDATE,
-      PROJECT_PERIMSSIONS.DELETE
+      PROJECT_PERIMSSIONS.DELETE,
+      ORGANISATION_TEAM_PERMISSIONS.MANAGE,
     ],
     MEMBER: [
       PROJECT_PERIMSSIONS.READ,

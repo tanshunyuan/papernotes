@@ -1,5 +1,5 @@
 {
-  "id": "74b4e050-08de-4e7e-90d4-b07eed474e01",
+  "id": "054908ed-8f21-4112-832c-38cd2e9881e2",
   "prevId": "a5129bea-e7b6-490f-acb2-dcf9ae22a7db",
   "version": "5",
   "dialect": "pg",
@@ -138,8 +138,8 @@
       "name": "papernotes_organisation_team_users",
       "schema": "",
       "columns": {
-        "organisation_id": {
-          "name": "organisation_id",
+        "organisation_team_id": {
+          "name": "organisation_team_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -166,12 +166,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "papernotes_organisation_team_users_organisation_id_papernotes_organisations_id_fk": {
-          "name": "papernotes_organisation_team_users_organisation_id_papernotes_organisations_id_fk",
+        "papernotes_organisation_team_users_organisation_team_id_papernotes_organisation_teams_id_fk": {
+          "name": "papernotes_organisation_team_users_organisation_team_id_papernotes_organisation_teams_id_fk",
           "tableFrom": "papernotes_organisation_team_users",
-          "tableTo": "papernotes_organisations",
+          "tableTo": "papernotes_organisation_teams",
           "columnsFrom": [
-            "organisation_id"
+            "organisation_team_id"
           ],
           "columnsTo": [
             "id"
@@ -194,10 +194,10 @@
         }
       },
       "compositePrimaryKeys": {
-        "papernotes_organisation_team_users_organisation_id_organisation_user_id_pk": {
-          "name": "papernotes_organisation_team_users_organisation_id_organisation_user_id_pk",
+        "papernotes_organisation_team_users_organisation_team_id_organisation_user_id_pk": {
+          "name": "papernotes_organisation_team_users_organisation_team_id_organisation_user_id_pk",
           "columns": [
-            "organisation_id",
+            "organisation_team_id",
             "organisation_user_id"
           ]
         }

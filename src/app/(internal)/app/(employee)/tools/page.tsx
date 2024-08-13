@@ -3,44 +3,34 @@
 // everybody can CRUD all organisations
 
 import { Box, Button, Typography } from "@mui/material";
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { CreateOrganisationDialog } from "./_components/dialogs/create-organisation-dialog";
-import { useState } from "react";
-import { RouterOutputs } from "~/trpc/shared";
+import { type RouterOutputs } from "~/trpc/shared";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "~/utils/route-paths";
 
 export default function ToolsPage() {
-  const [openCreateOrganisationDialog, setOpenCreateOrganisationDialog] = useState(false);
   const organisationQuery = api.organisation.getAllOrganisations.useQuery()
+  const router = useRouter()
 
   if (organisationQuery.isLoading) {
     return <div>Loading...</div>
   }
 
-  return <LocalizationProvider dateAdapter={AdapterDayjs}>
-    <CreateOrganisationDialog
-      open={openCreateOrganisationDialog}
-      setOpen={setOpenCreateOrganisationDialog}
-    />
-    <Box>
-      <Typography variant="h5">Internal Tools</Typography>
+  return <Box>
+    <Typography variant="h5">Internal Tools</Typography>
 
-      <Box>
-        <Button onClick={() => setOpenCreateOrganisationDialog(true)}>Create Organisation</Button>
-        <Box sx={{
-          display: "flex",
-          gap: '1rem',
-        }}>
-          {organisationQuery.data ? organisationQuery.data.map((organisation) => (
-            <OrganisationItem key={organisation.id} organisation={organisation} />
-          )) : null}
-        </Box>
+    <Box>
+      <Button onClick={() => router.push(ROUTE_PATHS.APP.TOOLS.ORGANISATION.CREATE)}>Create Organisation</Button>
+      <Box sx={{
+        display: "flex",
+        gap: '1rem',
+      }}>
+        {organisationQuery.data ? organisationQuery.data.map((organisation) => (
+          <OrganisationItem key={organisation.id} organisation={organisation} />
+        )) : null}
       </Box>
     </Box>
-  </LocalizationProvider>
+  </Box>
 
 }
 

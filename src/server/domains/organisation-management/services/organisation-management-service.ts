@@ -17,6 +17,11 @@ interface CreateOrganisationArgs {
   planDurationStart: Date;
   planDurationEnd: Date;
   maxSeats: number;
+  resourceLimits: {
+    projectLimit: number;
+    projectResetDuration: number;
+    featureLimit: number;
+  }
 }
 
 interface AddAUserToOrganisationArgs {
@@ -56,8 +61,10 @@ export class OrganisationManagementService {
 
   /**@todo need to add fn to add in resource limits & number of seats */
   public async createOrganisation(args: CreateOrganisationArgs) {
-    /**@todo need to add rule to only allow internal employee to create organisation */
     try {
+      const currentUser = await this.userRepository.getUserByIdOrFail(args.currentUserId);
+      if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
+
       const organisation = new Organisation({
         id: uuid(),
         name: args.name,
@@ -68,7 +75,29 @@ export class OrganisationManagementService {
         createdAt: new Date(),
         updatedAt: new Date()
       })
+
+      const organisationResourceLimits = new OrganisationResourceLimits({
+        id: uuid(),
+        orgId: organisation.getValue().id,
+        configuration: {
+          resources: {
+            project: {
+              limit: args.resourceLimits.projectLimit,
+              reset_duration_days: args.resourceLimits.projectResetDuration
+            },
+            feature: {
+              limit: args.resourceLimits.featureLimit,
+              reset_duration_days: null
+            }
+          }
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+
+      /**@todo wrap in transaction */
       await this.organisationRepository.save(organisation)
+      await this.organisationResourceLimitsRepository.save(organisationResourceLimits);
     } catch (error) {
       throw new Error(`Error creating organisation: ${error}`)
     }

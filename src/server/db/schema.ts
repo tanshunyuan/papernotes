@@ -8,6 +8,7 @@ import {
   json,
   pgEnum,
   pgTableCreator,
+  primaryKey,
   serial,
   text,
   timestamp,
@@ -72,7 +73,10 @@ export const organisationSchema = createTable('organisations', {
 
 export const organisationSchemaRelations = relations(organisationSchema, ({ many, one }) => ({
   organisation_users: many(organisationUsersSchema),
-  resource_limits: one(organisationResourceLimitsSchema)
+  // only resource limit needs to have the foreign key connection
+  resource_limits: one(organisationResourceLimitsSchema),
+  organisation_teams: many(organisationTeamsSchema),
+  organisation_team_users: many(organisationTeamUsersSchema)
 }))
 
 export const organisationResourceLimitsSchema = createTable('organisation_resource_limits', {
@@ -107,5 +111,44 @@ export const organisationUsersSchemaRelations = relations(organisationUsersSchem
   user: one(userSchema, {
     fields: [organisationUsersSchema.userId],
     references: [userSchema.id]
+  })
+}))
+
+export const organisationTeamsSchema = createTable('organisation_teams', {
+  id: text('id').primaryKey().notNull(),
+  organisationId: text('organisation_id').references(() => organisationSchema.id).notNull(),
+  name: text('name').notNull(),
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+  deletedAt: timestamp('deleted_at')
+})
+
+export const organisationTeamsSchemaRelations = relations(organisationTeamsSchema, ({ one, many }) => ({
+  organisation: one(organisationSchema, {
+    fields: [organisationTeamsSchema.organisationId],
+    references: [organisationSchema.id]
+  }),
+  organisation_team_users: many(organisationTeamUsersSchema)
+}))
+
+export const organisationTeamUsersSchema = createTable('organisation_team_users', {
+  organisationId: text('organisation_id').references(() => organisationSchema.id).notNull(),
+  organisationUserId: text('organisation_user_id').references(() => organisationUsersSchema.id).notNull(),
+  joinedAt: timestamp('joined_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+  leftAt: timestamp('left_at')
+}, (t) => ({
+  pk: primaryKey({
+    columns: [t.organisationId, t.organisationUserId]
+  })
+}))
+
+export const organisationTeamUsersRelations = relations(organisationTeamUsersSchema, ({ one }) => ({
+  organisation: one(organisationSchema, {
+    fields: [organisationTeamUsersSchema.organisationId],
+    references: [organisationSchema.id],
+  }),
+  organisation_user: one(organisationUsersSchema, {
+    fields: [organisationTeamUsersSchema.organisationUserId],
+    references: [organisationUsersSchema.id],
   })
 }))

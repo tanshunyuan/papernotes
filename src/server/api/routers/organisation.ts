@@ -9,7 +9,12 @@ const createOrganisationValidator = z.object({
   description: z.string(),
   planDurationStart: z.date(),
   planDurationEnd: z.date(),
-  maxSeats: z.number()
+  maxSeats: z.number(),
+  resourceLimits: z.object({
+    projectLimit: z.number(),
+    projectResetDuration: z.number(),
+    featureLimit: z.number()
+  })
 })
 
 const upsertOrganisationResourceLimitsValidator = z.object({
@@ -29,7 +34,12 @@ export const organisationRouter = createTRPCRouter({
         description: input.description,
         planDurationStart: input.planDurationStart,
         planDurationEnd: input.planDurationEnd,
-        maxSeats: input.maxSeats
+        maxSeats: input.maxSeats,
+        resourceLimits: {
+          projectLimit: input.resourceLimits.projectLimit,
+          projectResetDuration: input.resourceLimits.projectResetDuration,
+          featureLimit: input.resourceLimits.featureLimit
+        }
       })
     } catch (e) {
       const error = e as Error

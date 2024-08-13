@@ -13,6 +13,7 @@ export const ROUTE_PATHS = {
     TOOLS: {
       HOME: '/app/tools',
       ORGANISATION: {
+        CREATE: '/app/tools/organisation/create',
         DETAILS: (id: string) => `/app/tools/organisation/${id}`
       }
     }

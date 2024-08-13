@@ -1,6 +1,6 @@
 import { pgRolesEnum } from '~/server/db/schema';
-import { User } from "../../user-management/models/user";
-import { Organisation } from "./organisation";
+import { type User } from "../../user-management/models/user";
+import { type Organisation } from "./organisation";
 
 /**@see {@link pgRolesEnum} */
 export enum ORGANISATION_ROLE_ENUM {

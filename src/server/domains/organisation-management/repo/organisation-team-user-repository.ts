@@ -28,11 +28,11 @@ export class OrganisationTeamUserRepository {
   }
 
   /**@todo add join to retrieve full org user & team information */
-  public async getTeamUsersByOrganisationId(organisationId: string) {
+  public async getTeamUsersByOrganisationTeamId(organisationTeamId: string) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationTeamUsersSchema
         .findMany({
-          where: eq(organisationTeamUsersSchema.organisationTeamId, organisationId),
+          where: eq(organisationTeamUsersSchema.organisationTeamId, organisationTeamId),
         })
       if (!rawResults || rawResults.length === 0) return []
       const results = rawResults.map(teamUser => new OrganisationTeamUser({

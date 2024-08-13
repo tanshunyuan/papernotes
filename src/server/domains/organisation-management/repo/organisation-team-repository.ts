@@ -22,11 +22,11 @@ export class OrganisationTeamRepository {
     }
   }
 
-  public async getAllOrganisationTeams() {
+  public async getAllOrganisationTeamsByOrganisationId(orgId: string) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationTeamsSchema
         .findMany({
-          where: isNull(organisationTeamsSchema.deletedAt),
+          where: and(eq(organisationTeamsSchema.organisationId, orgId), isNull(organisationTeamsSchema.deletedAt)),
         })
       if (!rawResults || rawResults.length === 0) return []
       const results = rawResults.map(team => {

@@ -13,7 +13,7 @@ interface CreateTeamArgs {
   currentUserId: string
 }
 
-interface AssignAOrgUserToTeamArgs{
+interface AssignAOrgUserToTeamArgs {
   organisationId: string
   currentUserId: string
   orgTeamMemberId: string
@@ -63,9 +63,37 @@ export class OrganisationTeamManagementService {
         leftAt: null
       })
       await this.organisationTeamUserRepository.save(orgTeamUser)
-      
+
     } catch (error) {
-      throw new Error(`Error assigning an org user to a team, ${error}`)
+      throw new Error(`Error assigning an org user to a team: ${error}`)
+    }
+  }
+
+  /**@todo might need to adapt team details and allow gignite employee to query as well */
+  public async getAllOrganisationTeams(args: { orgId: string, currentUserId: string }) {
+    try {
+      const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrNull(args.currentUserId)
+      if (!organisationUser) throw new Error('You do not have permission to perform this operation')
+
+      const orgTeams = (await this.organisationTeamRepo.getAllOrganisationTeamsByOrganisationId(args.orgId)).map(item => item.getValue())
+      return orgTeams
+    } catch (error) {
+      throw new Error(`Error getting all organisation teams: ${error}`)
+    }
+  }
+
+  public async getOrganisationTeamDetails(args: { orgId: string, teamId: string, currentUserId: string }) {
+    try {
+      const organisationUser = await this.organisationUserRepo.getOrganisationUserByIdOrFail(args.currentUserId)
+      if (organisationUser.getValue().role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+
+      await this.organisationTeamRepo.getOrganisationTeamByIdOrFail(args.teamId)
+      const orgTeamUsers = (await this.organisationTeamUserRepository.getTeamUsersByOrganisationTeamId(args.teamId)).map(item => item.getValue())
+
+      return orgTeamUsers
+    } catch (error) {
+      throw new Error(`Error getting organisation team details: ${error}`)
+
     }
   }
 }

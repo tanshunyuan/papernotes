@@ -9,6 +9,11 @@ export const ROUTE_PATHS = {
     },
     ORGANISATION: {
       HOME: '/app/organisation',
+      TEAMS: {
+        HOME: '/app/organisation/team',
+        CREATE: '/app/organisation/team/create',
+        DETAILS: (id: string) => `/app/organisation/team/${id}`
+      }
     },
     TOOLS: {
       HOME: '/app/tools',

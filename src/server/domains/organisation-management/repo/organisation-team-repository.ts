@@ -16,7 +16,7 @@ export class OrganisationTeamRepository {
 
   public async update(entity: OrganisationTeam) {
     try {
-      await this.dbService.getQueryClient().update(organisationTeamsSchema).set({ ...entity, updatedAt: new Date() }).where(eq(organisationTeamsSchema.id, entity.getValue().id))
+      await this.dbService.getQueryClient().update(organisationTeamsSchema).set({ ...entity.getValue(), updatedAt: new Date() }).where(eq(organisationTeamsSchema.id, entity.getValue().id))
     } catch (error) {
       throw new Error(`Error updating organisation team: ${error}`)
     }

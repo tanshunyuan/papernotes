@@ -122,4 +122,26 @@ export class OrganisationTeamManagementService {
       throw new Error(`Error getting organisation team users: ${error}`)
     }
   }
+
+  public async updateOrganisationTeam(args: {
+    orgTeamId: string
+    currentUserId: string
+    name: string
+  }) {
+    try {
+      const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.currentUserId)
+      if (organisationUser.getValue().role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+      const existingOrgTeam = await this.organisationTeamRepo.getOrganisationTeamByIdOrFail(args.orgTeamId)
+
+      const updatedOrganisationTeam = new OrganisationTeam({
+        ...existingOrgTeam.getValue(),
+        name: args.name
+      })
+
+      await this.organisationTeamRepo.update(updatedOrganisationTeam)
+
+    } catch (error) {
+      throw new Error(`Error updating organisation team: ${error}`)
+    }
+  }
 }

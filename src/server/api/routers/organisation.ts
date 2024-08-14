@@ -183,6 +183,25 @@ export const organisationRouter = createTRPCRouter({
       })
     }
   }),
+  updateAOrganisationTeam: protectedProcedure.input(z.object({
+    orgTeamId: z.string(),
+    name: z.string()
+  })).mutation(async ({ ctx, input }) => {
+    try {
+      const userId = ctx.auth.userId
+      await organisationTeamManagementService.updateOrganisationTeam({
+        currentUserId: userId,
+        orgTeamId: input.orgTeamId,
+        name: input.name
+      })
+    } catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  }),
   getAOrganisationTeam: protectedProcedure.input(z.object({
     organisationId: z.string(),
     teamId: z.string()
@@ -247,4 +266,5 @@ export const organisationRouter = createTRPCRouter({
       })
     }
   }),
+
 })

@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { organisationManagementService } from "~/server/domains/organisation-management/services";
+import { organisationManagementService, organisationTeamManagementService } from "~/server/domains/organisation-management/services";
 import { z } from "zod";
 import { ORGANISATION_ROLE_ENUM } from "~/server/domains/organisation-management/models/organisation-user";
 
@@ -135,6 +135,25 @@ export const organisationRouter = createTRPCRouter({
         projectResetDuration: input.projectResetDuration,
         featureLimit: input.featureLimit
       })
+    } catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  }),
+
+  getAllOrganisationTeams: protectedProcedure.input(z.object({
+    organisationId: z.string(),
+  })).query(async ({ ctx, input }) => {
+    try {
+      const userId = ctx.auth.userId
+      const teams = await organisationTeamManagementService.getAllOrganisationTeams({
+        currentUserId: userId,
+        orgId: input.organisationId
+      })
+      return teams
     } catch (e) {
       const error = e as Error
       throw new TRPCError({

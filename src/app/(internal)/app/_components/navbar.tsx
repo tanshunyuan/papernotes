@@ -52,7 +52,7 @@ export const AppNavbar = () => {
           {
             userQuery.data?.plan === USER_PLAN_ENUM.ENTERPRISE ?
               <Typography>
-                <Link href={ROUTE_PATHS.APP.ORGANISATION.HOME}>
+                <Link href={ROUTE_PATHS.APP.ORGANISATION.HOME(userQuery.data?.organisation?.id)}>
                   Organisation
                 </Link>
               </Typography> : null

@@ -12,7 +12,7 @@ export default function OrganisationPage() {
 
   if (getUserDetailsQuery.isLoading) return <div>Loading...</div>
   return <Box>
-    <Button onClick={() => router.push(ROUTE_PATHS.APP.ORGANISATION.TEAMS.HOME)}>Manage Teams</Button>
+    <Button onClick={() => router.push(ROUTE_PATHS.APP.ORGANISATION.TEAMS.HOME(getUserDetailsQuery.data?.organisation?.id))}>Manage Teams</Button>
     <Typography>Organisation: {getUserDetailsQuery.data?.organisation?.name}</Typography>
   </Box>
 }

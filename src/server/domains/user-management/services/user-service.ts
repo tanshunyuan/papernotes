@@ -57,6 +57,7 @@ export class UserService {
         name: user.getValue().name,
         plan: user.getValue().plan,
         organisation: {
+          id: organisation.getValue().id,
           name: organisation.getValue().name,
         }
       }

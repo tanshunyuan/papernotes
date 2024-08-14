@@ -161,5 +161,90 @@ export const organisationRouter = createTRPCRouter({
         message: error.message
       })
     }
-  })
+  }),
+  createAOrganisationTeam: protectedProcedure.input(
+    z.object({
+      organisationId: z.string(),
+      name: z.string(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    try {
+      const userId = ctx.auth.userId
+      await organisationTeamManagementService.createTeam({
+        currentUserId: userId,
+        organisationId: input.organisationId,
+        name: input.name
+      })
+    } catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  }),
+  getAOrganisationTeam: protectedProcedure.input(z.object({
+    organisationId: z.string(),
+    teamId: z.string()
+  })).query(async ({ ctx, input }) => {
+    try {
+      const userId = ctx.auth.userId
+      const teamDetail = await organisationTeamManagementService.getOrganisationTeamDetails({
+        currentUserId: userId,
+        orgId: input.organisationId,
+        teamId: input.teamId
+      })
+      return teamDetail
+    } catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  }),
+
+  getAllOrganisationTeamUsers: protectedProcedure.input(z.object({
+    organisationId: z.string(),
+    teamId: z.string()
+  })).query(async ({ ctx, input }) => {
+    try {
+      const userId = ctx.auth.userId
+      const teamUsers = await organisationTeamManagementService.getAllOrganisationTeamUsers({
+        currentUserId: userId,
+        orgId: input.organisationId,
+        teamId: input.teamId
+      })
+      return teamUsers
+    } catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  }),
+
+  assignUserToTeam: protectedProcedure.input(z.object({
+    organisationId: z.string(),
+    teamId: z.string(),
+    memberId: z.string()
+  })).mutation(async ({ ctx, input }) => {
+    try {
+      const userId = ctx.auth.userId
+      await organisationTeamManagementService.assignAOrgUserToTeam({
+        currentUserId: userId,
+        organisationId: input.organisationId,
+        orgTeamId: input.teamId,
+        orgTeamMemberId: input.memberId
+      })
+    }
+    catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  }),
 })

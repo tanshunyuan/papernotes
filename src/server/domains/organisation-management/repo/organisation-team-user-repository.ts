@@ -48,13 +48,16 @@ export class OrganisationTeamUserRepository {
     }
   }
 
-  public async getTeamUserByOrganisationAndUserIdOrNull(organisationId: string, organisationUserId: string) {
+  public async getTeamUserByOrganisationTeamIdAndUserIdOrNull(args: {
+    organisationTeamId: string
+    organisationUserId: string
+  }) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationTeamUsersSchema
         .findFirst({
           where: and(
-            eq(organisationTeamUsersSchema.organisationTeamId, organisationId),
-            eq(organisationTeamUsersSchema.organisationUserId, organisationUserId)
+            eq(organisationTeamUsersSchema.organisationTeamId, args.organisationTeamId),
+            eq(organisationTeamUsersSchema.organisationUserId, args.organisationUserId)
           )
         })
       if (!rawResults) return null

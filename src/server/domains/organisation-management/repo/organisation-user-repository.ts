@@ -23,12 +23,11 @@ export class OrganisationUserRepository {
           where: eq(organisationUsersSchema.organisationId, organisationId),
           with: {
             user: {
-              columns: { email: true }
+              columns: { email: true, name: true }
             }
           }
         })
       if (!rawResults || rawResults.length === 0) return []
-      console.log("rawResults", rawResults)
       const results = rawResults.map(organisationUser => {
         return {
           ...new OrganisationUser({
@@ -38,7 +37,7 @@ export class OrganisationUserRepository {
             role: ORGANISATION_ROLE_ENUM[organisationUser.role],
             createdAt: organisationUser.createdAt,
             updatedAt: organisationUser.updatedAt
-          }).getValue(), email: organisationUser.user.email
+          }).getValue(), email: organisationUser.user.email, name: organisationUser.user.name
         }
       })
       return results

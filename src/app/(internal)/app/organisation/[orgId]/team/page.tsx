@@ -12,6 +12,7 @@ import { ROUTE_PATHS } from "~/utils/route-paths";
 interface OrganisationTeamPageProps {
   params: {
     orgId: string
+    orgTeamId: string
   }
 }
 export default function OrganisationTeamPage(props: OrganisationTeamPageProps) {
@@ -32,8 +33,19 @@ export default function OrganisationTeamPage(props: OrganisationTeamPageProps) {
       <Typography>Organisation Teams</Typography>
       <Button onClick={() => router.push(ROUTE_PATHS.APP.ORGANISATION.TEAMS.CREATE(props.params.orgId))}>Create Team</Button>
     </Box>
-    {isDataEmpty ? <Typography>No Teams</Typography> : <Box>
-      <pre>{JSON.stringify(organisationTeamQuery.data, null, 2)}</pre>
+    {isDataEmpty ? <Typography>No Teams</Typography> : <Box sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '1rem'
+    }}>
+      {
+        organisationTeamQuery.data?.map((team) => {
+          return <Box key={team.id}>
+            <Typography>{team.name}</Typography>
+            <Button variant='contained' onClick={() => router.push(ROUTE_PATHS.APP.ORGANISATION.TEAMS.DETAILS(props.params.orgId, team.id))}>More</Button>
+          </Box>
+        })
+      }
     </Box>}
   </Box>
 }

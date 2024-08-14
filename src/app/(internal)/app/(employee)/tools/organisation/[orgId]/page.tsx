@@ -13,6 +13,7 @@ interface OrganisationDetailsPageProps {
   }
 }
 
+/**@todo fix assigning enterprise users, gives them a free plan instead of a enterprise one */
 export default function OrganisationDetailsPage(props: OrganisationDetailsPageProps) {
   const { params } = props;
   const { orgId } = params;

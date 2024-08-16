@@ -6,6 +6,7 @@ import { ProjectResourceLimits } from "../../authorisation/utils/resource-limits
 import { ProjectRepository } from "../../project-management/repo/project-repository";
 import { OrganisationResourceLimitsRepository } from "../../organisation-management/repo/organisation-resource-limits-repository";
 import { OrganisationRepository } from "../../organisation-management/repo/organisation-repository";
+import { OrganisationTeamUserRepository } from '../../organisation-management/repo/organisation-team-user-repository';
 
 export class UserService {
   constructor(
@@ -13,7 +14,8 @@ export class UserService {
     private readonly projectRepo: ProjectRepository,
     private readonly organisationRepo: OrganisationRepository,
     private readonly organisationUserRepo: OrganisationUserRepository,
-    private readonly organisationResourceLimitsRepo: OrganisationResourceLimitsRepository
+    private readonly organisationResourceLimitsRepo: OrganisationResourceLimitsRepository,
+    private readonly organisationTeamUserRepo: OrganisationTeamUserRepository,
   ) { }
 
   public async registerExistingClerkUser(userId: string) {
@@ -51,6 +53,9 @@ export class UserService {
     if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
       const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(userId)
       const organisation = await this.organisationRepo.getOrganisationByIdOrFail(organisationUser.getValue().organisationId)
+      const organisationTeamUserInfo = await this.organisationTeamUserRepo.getTeamUserByOrganisationUserIdOrNull({
+        organisationUserId: organisationUser.getValue().id,
+      })
 
       return {
         email: user.getValue().email,
@@ -59,8 +64,11 @@ export class UserService {
         organisation: {
           id: organisation.getValue().id,
           name: organisation.getValue().name,
+          teamName: organisationTeamUserInfo?.teamName ?? null,
+          teamId: organisationTeamUserInfo?.organisationTeamId ?? null,
         }
       }
+
     }
   }
 

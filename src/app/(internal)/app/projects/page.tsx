@@ -45,8 +45,10 @@ export default function ProjectsPage() {
       <Button onClick={handleCreateProject}>Create</Button>
       <Box
         sx={{
-          display: "flex",
-          gap: '1rem',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateRows: 'repeat(3, 1fr)',
+          gap: '1rem'
         }}
       >
         {getProjectsQuery.data?.map(project => (<ProjectCard key={project.id} project={project} />))}
@@ -60,9 +62,9 @@ const ProjectLimits = () => {
   const userResourceLimitsQuery = api.user.getUserResourceLimits.useQuery();
   if (userResourceLimitsQuery.isLoading) return <div>Loading...</div>
   return <Box>
-    <Typography variant="h4">Project Limits</Typography>
+    <Typography variant="h6">Project Limits</Typography>
     <pre>
-      {JSON.stringify(userResourceLimitsQuery.data, null, 2)}
+      {JSON.stringify(userResourceLimitsQuery.data, null)}
     </pre>
   </Box>
 
@@ -126,7 +128,6 @@ const ProjectCard = (props: ProjectCardProps) => {
         sx={{
           border: '1px solid #313033',
           padding: '1rem',
-          width: 'max-content',
           borderRadius: '0.5rem',
           display: 'flex',
           flexDirection: 'column',
@@ -134,8 +135,9 @@ const ProjectCard = (props: ProjectCardProps) => {
 
         }}
         key={project.id}>
-        <Typography variant="h4">{project.name}</Typography>
+        <Typography variant="h5">{project.name}</Typography>
         <Typography variant="body1">{project.description}</Typography>
+        <Typography variant="body2">Created By: {project.createdBy}</Typography>
         <Button variant="contained" onClick={handleClick}>More</Button>
 
         <Menu

@@ -87,7 +87,14 @@ export class ProjectRepository {
     try {
       const rawResults = await this.dbService.getQueryClient().query.projectSchema
         .findMany({
-          where: eq(projectSchema.userId, userId)
+          where: eq(projectSchema.userId, userId),
+          with: {
+            users: {
+              columns: {
+                email: true
+              }
+            }
+          }
         })
 
       if (!rawResults || rawResults.length === 0) return []
@@ -98,6 +105,7 @@ export class ProjectRepository {
           name: project.name,
           userId: project.userId,
           description: project.description,
+          createdBy: project.users.email,
           createdAt: project.createdAt,
           updatedAt: project.updatedAt
         })
@@ -140,6 +148,7 @@ export class ProjectRepository {
 
       const rawResults = await this.dbService.getQueryClient().select().from(projectSchema)
       .leftJoin(organisationUsersSchema, eq(organisationUsersSchema.userId, projectSchema.userId))
+      .leftJoin(userSchema, eq(userSchema.id, projectSchema.userId))
       .where(eq(organisationUsersSchema.organisationId, organisationId));
 
       if(!rawResults || rawResults.length === 0) return []
@@ -150,6 +159,7 @@ export class ProjectRepository {
           name: items.projects.name,
           userId: items.projects.userId,
           description: items.projects.description,
+          createdBy: items.users?.email,
           createdAt: items.projects.createdAt
         })
       })

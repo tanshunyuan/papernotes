@@ -3,6 +3,7 @@ interface ProjectProps {
   name: string;
   userId: string;
   description: string;
+  createdBy?: string
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { api } from "~/trpc/react"
 import { ROUTE_PATHS } from "~/utils/route-paths"
 
-// only accessible by people with enterprise plan and they've a organisation
+/**@todo only accessible by people with enterprise plan and they've a organisation */
 export default function OrganisationPage() {
   const getUserDetailsQuery = api.user.getUserDetails.useQuery()
   const router = useRouter()

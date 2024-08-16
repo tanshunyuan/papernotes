@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, AppBar, Toolbar, IconButton, Typography, Button, Skeleton } from "@mui/material"
+import { Box, AppBar, Toolbar, IconButton, Typography, Button, Skeleton, Breadcrumbs, Link as MuiLink } from "@mui/material"
 import MenuIcon from '@mui/icons-material/Menu';
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,8 @@ export const AppNavbar = () => {
   }
 
   if (userQuery.isLoading) return <Skeleton variant="rectangular" width={210} height={118} />
+
+  const isPartOfOrganisation = userQuery.data?.plan === USER_PLAN_ENUM.ENTERPRISE && userQuery.data.organisation
 
   return <Box>
     <AppBar position="static">
@@ -49,13 +51,12 @@ export const AppNavbar = () => {
             </Typography> : null
           }
 
-          {
-            userQuery.data?.plan === USER_PLAN_ENUM.ENTERPRISE ?
-              <Typography>
-                <Link href={ROUTE_PATHS.APP.ORGANISATION.HOME(userQuery.data?.organisation?.id)}>
-                  Organisation
-                </Link>
-              </Typography> : null
+          {isPartOfOrganisation ?
+            <Typography>
+              <Link href={ROUTE_PATHS.APP.ORGANISATION.HOME(userQuery.data!.organisation!.id)}>
+                Organisation
+              </Link>
+            </Typography> : null
           }
         </Box>
 
@@ -68,5 +69,19 @@ export const AppNavbar = () => {
         </Box>
       </Toolbar>
     </AppBar>
+
+    {isPartOfOrganisation ?
+      <Breadcrumbs aria-label="breadcrumb" sx={{ p: '1rem' }}>
+        <MuiLink underline="hover" color="inherit" href={ROUTE_PATHS.APP.PROJECT.HOME}>
+          {userQuery.data?.organisation?.name}
+        </MuiLink>
+        {
+          userQuery.data?.organisation?.teamName ?
+            <Typography>
+              {userQuery.data.organisation.teamName}
+            </Typography> : null
+        }
+      </Breadcrumbs> : null
+    }
   </Box>
 }

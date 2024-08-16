@@ -2,6 +2,7 @@ import { DbService } from '~/server/db';
 import { organisationTeamUsersSchema } from '~/server/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { OrganisationTeamUser } from '../models/organisation-team-user';
+// how do i check if a user is part of a team? 
 
 export class OrganisationTeamUserRepository {
   constructor(private readonly dbService: DbService) { }
@@ -44,7 +45,7 @@ export class OrganisationTeamUserRepository {
       return results
     }
     catch (error) {
-      throw new Error(`Error getting team users by organisation id: ${error}`)
+      throw new Error(`Error getting team users by organisation team id: ${error}`)
     }
   }
 
@@ -68,7 +69,37 @@ export class OrganisationTeamUserRepository {
         leftAt: rawResults.leftAt,
       })
     } catch (error) {
-      throw new Error(`Error getting team user by organisation and user id: ${error}`)
+      throw new Error(`Error getting team user by organisation team id and user id: ${error}`)
+    }
+  }
+
+  public async getTeamUserByOrganisationUserIdOrNull(args: {
+    organisationUserId: string
+  }) {
+    try {
+      const rawResults = await this.dbService.getQueryClient().query.organisationTeamUsersSchema
+        .findFirst({
+          where: eq(organisationTeamUsersSchema.organisationUserId, args.organisationUserId),
+          with: {
+            organisation_team: {
+              columns: {
+                name: true,
+              }
+            }
+          }
+        })
+      if (!rawResults) return null
+      return {
+        ...new OrganisationTeamUser({
+          organisationTeamId: rawResults.organisationTeamId,
+          organisationUserId: rawResults.organisationUserId,
+          joinedAt: rawResults.joinedAt,
+          leftAt: rawResults.leftAt,
+        }).getValue(),
+        teamName: rawResults.organisation_team.name,
+      }
+    } catch (error) {
+      throw new Error(`Error getting team user by organisation user id: ${error}`)
     }
   }
 }

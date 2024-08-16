@@ -40,7 +40,7 @@ export class ProjectManagementService {
 
       if (userDetails.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
         const organisationUserDetails = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(userDetails.getValue().id)
-        const organisationResourceLimits = await this.organisationResourceLimitsRepo.getResourceLimitsByOrganisationIdOrFail(organisationUserDetails.getValue().organisationId)
+        const organisationResourceLimits = await this.organisationResourceLimitsRepo.getResourceLimitsByOrganisationIdOrFail(organisationUserDetails.organisationId)
 
         console.log('ProjectManagementService.if.enterprise', {
           details: {
@@ -86,8 +86,8 @@ export class ProjectManagementService {
 
       if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
         const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrNull(user.getValue().id)
-        if (organisationUser?.getValue().role === ORGANISATION_ROLE_ENUM.ADMIN) {
-          const allProjects = (await this.projectRepo.getAllOrganisationProjects(organisationUser.getValue().organisationId)).map(project => {
+        if (organisationUser?.role === ORGANISATION_ROLE_ENUM.ADMIN) {
+          const allProjects = (await this.projectRepo.getAllOrganisationProjects(organisationUser.organisationId)).map(project => {
             return {
               ...project.getValue(),
               permissions: project.getValue().userId === userId ? PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN : null
@@ -96,13 +96,13 @@ export class ProjectManagementService {
           return allProjects
         }
 
-        if (organisationUser?.getValue().role === ORGANISATION_ROLE_ENUM.MEMBER) {
+        if (organisationUser?.role === ORGANISATION_ROLE_ENUM.MEMBER) {
           // If you're part of a team retrieve all projects for that team
           // else retrieve all projects for that user
 
 
           const organisationTeamUser = await this.organisationTeamUserRepo.getTeamUserByOrganisationUserIdOrNull({
-            organisationUserId: organisationUser.getValue().id
+            organisationUserId: organisationUser.id
           })
 
           if (!organisationTeamUser) {

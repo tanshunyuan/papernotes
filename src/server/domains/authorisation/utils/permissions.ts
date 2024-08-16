@@ -8,13 +8,25 @@ export const PROJECT_PERIMSSIONS = {
 } as const
 
 export const ORGANISATION_TEAM_PERMISSIONS = {
-  /**@description a wildcard for CRUD */
-  MANAGE: 'organisation-team:manage',
   CREATE: 'organisation-team:create',
   READ: 'organisation-team:read',
+  READ_ALL: 'organisation-team:read_all',
   UPDATE: 'organisation-team:update',
   DELETE: 'organisation-team:delete',
-}
+} as const
+
+// alternate way to specify resource permissions on role
+// const ORGANISATION_TEAM_RESOURCE = {
+//   ADMIN: [
+//     ORGANISATION_TEAM_PERMISSIONS.CREATE,
+//     ORGANISATION_TEAM_PERMISSIONS.READ,
+//     ORGANISATION_TEAM_PERMISSIONS.READ_ALL,
+//     ORGANISATION_TEAM_PERMISSIONS.DELETE,
+//   ],
+//   MEMBER: [
+//     ORGANISATION_TEAM_PERMISSIONS.READ,
+//   ]
+// }
 
 /**@see {@link pgUserPlanEnum} */
 export const PLAN_BASED_ROLE_PERMISSION = {
@@ -30,13 +42,17 @@ export const PLAN_BASED_ROLE_PERMISSION = {
       PROJECT_PERIMSSIONS.READ_ALL,
       PROJECT_PERIMSSIONS.UPDATE,
       PROJECT_PERIMSSIONS.DELETE,
-      ORGANISATION_TEAM_PERMISSIONS.MANAGE,
+      ORGANISATION_TEAM_PERMISSIONS.CREATE,
+      ORGANISATION_TEAM_PERMISSIONS.READ,
+      ORGANISATION_TEAM_PERMISSIONS.READ_ALL,
+      ORGANISATION_TEAM_PERMISSIONS.UPDATE
     ],
     MEMBER: [
       PROJECT_PERIMSSIONS.READ,
       PROJECT_PERIMSSIONS.CREATE,
       PROJECT_PERIMSSIONS.UPDATE,
-      PROJECT_PERIMSSIONS.DELETE
+      PROJECT_PERIMSSIONS.DELETE,
+      ORGANISATION_TEAM_PERMISSIONS.READ,
     ]
   }
 } as const

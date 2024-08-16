@@ -22,11 +22,23 @@ export default function OrganisationPage(props: OrganisationPageProps) {
     organisationId: props.params.orgId
   })
 
+  const getAOrganisationTeamDetailQuery = api.organisation.getAOrganisationTeam.useQuery({
+    organisationId: props.params.orgId,
+    teamId: getUserDetailsQuery.data?.organisation?.teamId
+  }, {
+    enabled: !!getUserDetailsQuery.data?.organisation?.teamId
+  })
+
   const isMe = (memberId: string) => {
     return getUserDetailsQuery.data?.id === memberId
   }
 
-  if (getUserDetailsQuery.isLoading || getOrganisationDetailsQuery.isLoading || getAllOrganisationTeamsQuery.isLoading) return <Typography>Loading...</Typography>
+  if (
+    getUserDetailsQuery.isLoading ||
+    getOrganisationDetailsQuery.isLoading ||
+    getAllOrganisationTeamsQuery.isLoading ||
+    getAOrganisationTeamDetailQuery.isLoading
+  ) return <Typography>Loading...</Typography>
 
   return <Box sx={{
     display: 'flex',
@@ -67,7 +79,7 @@ export default function OrganisationPage(props: OrganisationPageProps) {
 
     <Box>
       {/* only for enterprise plan ADMIN -- START */}
-      <Box sx={{
+      {/* <Box sx={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
@@ -93,12 +105,52 @@ export default function OrganisationPage(props: OrganisationPageProps) {
             }} variant='contained' onClick={() => router.push(ROUTE_PATHS.APP.ORGANISATION.TEAMS.DETAILS(props.params.orgId, team.id))}>More</Button>
           </Box>
         ))}
-      </Box>
+      </Box> */}
       {/* only for enterprise plan ADMIN -- END */}
 
+      {/* only for enterprise plan MEMBER -- START */}
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <Typography variant="h5" sx={{ mb: '0.5rem' }}>Team Details</Typography>
+      </Box>
+      <Box>
+        <Typography variant="body1">Team Name: {getAOrganisationTeamDetailQuery.data.orgTeam.name}</Typography>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Joined</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {getAOrganisationTeamDetailQuery.data ?
+                getAOrganisationTeamDetailQuery.data.orgTeamUsers.map((row) => (
+                  <TableRow
+                    key={row.name}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {row.name} {isMe(row.userId) ? <Typography variant="caption">(You)</Typography> : null}
+                    </TableCell>
+                    <TableCell>{row.email}</TableCell>
+                    <TableCell>{row.joinedAt.toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))
+                : null
+              }
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+      {/* only for enterprise plan MEMBER -- END */}
+
+
     </Box>
-    {/* <Button onClick={() => router.push(ROUTE_PATHS.APP.ORGANISATION.TEAMS.HOME(getUserDetailsQuery.data?.organisation?.id))}>Manage Teams</Button>
-    <Typography>Organisation: {getUserDetailsQuery.data?.organisation?.name}</Typography> */}
   </Box>
 }
 

@@ -32,7 +32,7 @@ export class OrganisationTeamManagementService {
   public async createTeam(args: CreateTeamArgs) {
     try {
       const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.currentUserId)
-      if (organisationUser.getValue().role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+      if (organisationUser.role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
 
       const orgTeam = new OrganisationTeam({
         id: uuid(),
@@ -51,7 +51,7 @@ export class OrganisationTeamManagementService {
   public async assignAOrgUserToTeam(args: AssignAOrgUserToTeamArgs) {
     try {
       const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.currentUserId)
-      if (organisationUser.getValue().role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+      if (organisationUser.role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
 
       const existingOrgTeamUser = await this.organisationTeamUserRepository.getTeamUserByOrganisationTeamIdAndUserIdOrNull({
         organisationTeamId: args.orgTeamId,
@@ -90,7 +90,8 @@ export class OrganisationTeamManagementService {
   public async getOrganisationTeamDetails(args: { orgId: string, teamId: string, currentUserId: string }) {
     try {
       const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.currentUserId)
-      if (organisationUser.getValue().role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+      /**@todo only allow admin and fellow team mbmer to query */
+      if (organisationUser.role !== ORGANISATION_ROLE_ENUM.ADMIN && !organisationUser.organisationTeamIds.includes(args.teamId)) throw new Error('You do not have permission to perform this operation')
 
       const orgTeam = await this.organisationTeamRepo.getOrganisationTeamByIdOrFail(args.teamId)
       const orgTeamUsers = (await this.organisationTeamUserRepository.getTeamUsersByOrganisationTeamId(args.teamId))
@@ -113,7 +114,7 @@ export class OrganisationTeamManagementService {
   }) {
     try {
       const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.currentUserId)
-      if (organisationUser.getValue().role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+      if (organisationUser.role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
 
       const orgUsers = (await this.organisationUserRepo.getAllOrganisationUsers(args.orgId)).filter(user => user.role === ORGANISATION_ROLE_ENUM.MEMBER)
       return orgUsers
@@ -130,7 +131,7 @@ export class OrganisationTeamManagementService {
   }) {
     try {
       const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.currentUserId)
-      if (organisationUser.getValue().role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+      if (organisationUser.role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
       const existingOrgTeam = await this.organisationTeamRepo.getOrganisationTeamByIdOrFail(args.orgTeamId)
 
       const updatedOrganisationTeam = new OrganisationTeam({

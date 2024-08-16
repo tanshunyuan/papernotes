@@ -78,18 +78,28 @@ export class OrganisationUserRepository {
   public async getOrganisationUserByUserIdOrNull(userId: string) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationUsersSchema.findFirst({
-        where: eq(organisationUsersSchema.userId, userId)
+        where: eq(organisationUsersSchema.userId, userId),
+        with: {
+          organisation_team_users: {
+            columns: {
+              organisationTeamId: true
+            }
+          }
+        }
       })
 
       if (!rawResults) return null
-      const result = new OrganisationUser({
+      const result = {
+        ...new OrganisationUser({
         id: rawResults.id,
         organisationId: rawResults.organisationId,
         userId: rawResults.userId,
         role: ORGANISATION_ROLE_ENUM[rawResults.role],
         createdAt: rawResults.createdAt,
         updatedAt: rawResults.updatedAt
-      })
+      }).getValue(),
+      organisationTeamIds: rawResults.organisation_team_users.map(teamUser => teamUser.organisationTeamId)
+    }
       return result
     } catch (error) {
       throw new Error(`Error getting organisation user by user id: ${error}`)

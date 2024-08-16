@@ -1,12 +1,14 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { User, USER_PLAN_ENUM } from "../models/user";
-import { UserRepository } from "../repo/user-repository";
-import { OrganisationUserRepository } from "../../organisation-management/repo/organisation-user-repository";
 import { ProjectResourceLimits } from "../../authorisation/utils/resource-limits";
-import { ProjectRepository } from "../../project-management/repo/project-repository";
-import { OrganisationResourceLimitsRepository } from "../../organisation-management/repo/organisation-resource-limits-repository";
-import { OrganisationRepository } from "../../organisation-management/repo/organisation-repository";
-import { OrganisationTeamUserRepository } from '../../organisation-management/repo/organisation-team-user-repository';
+import { type UserRepository } from "../repo/user-repository";
+import { type OrganisationUserRepository } from "../../organisation-management/repo/organisation-user-repository";
+import { type ProjectRepository } from "../../project-management/repo/project-repository";
+import { type OrganisationResourceLimitsRepository } from "../../organisation-management/repo/organisation-resource-limits-repository";
+import { type OrganisationRepository } from "../../organisation-management/repo/organisation-repository";
+import { type OrganisationTeamUserRepository } from '../../organisation-management/repo/organisation-team-user-repository';
+import { ORGANISATION_ROLE_ENUM } from "../../organisation-management/models/organisation-user";
+import { PLAN_BASED_ROLE_PERMISSION } from "../../authorisation/utils/permissions";
 
 export class UserService {
   constructor(
@@ -53,24 +55,41 @@ export class UserService {
 
     if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
       const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(userId)
-      const organisation = await this.organisationRepo.getOrganisationByIdOrFail(organisationUser.getValue().organisationId)
+      const organisation = await this.organisationRepo.getOrganisationByIdOrFail(organisationUser.organisationId)
       const organisationTeamUserInfo = await this.organisationTeamUserRepo.getTeamUserByOrganisationUserIdOrNull({
-        organisationUserId: organisationUser.getValue().id,
+        organisationUserId: organisationUser.id,
       })
-
-      return {
-        id: user.getValue().id,
-        email: user.getValue().email,
-        name: user.getValue().name,
-        plan: user.getValue().plan,
-        organisation: {
-          id: organisation.getValue().id,
-          name: organisation.getValue().name,
-          teamName: organisationTeamUserInfo?.teamName ?? null,
-          teamId: organisationTeamUserInfo?.organisationTeamId ?? null,
+      if (organisationUser.role === ORGANISATION_ROLE_ENUM.ADMIN) {
+        return {
+          id: user.getValue().id,
+          email: user.getValue().email,
+          name: user.getValue().name,
+          plan: user.getValue().plan,
+          organisation: {
+            id: organisation.getValue().id,
+            name: organisation.getValue().name,
+            teamName: organisationTeamUserInfo?.teamName ?? null,
+            teamId: organisationTeamUserInfo?.organisationTeamId ?? null,
+          },
+          permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN
         }
       }
 
+      if (organisationUser.role === ORGANISATION_ROLE_ENUM.MEMBER) {
+        return {
+          id: user.getValue().id,
+          email: user.getValue().email,
+          name: user.getValue().name,
+          plan: user.getValue().plan,
+          organisation: {
+            id: organisation.getValue().id,
+            name: organisation.getValue().name,
+            teamName: organisationTeamUserInfo?.teamName ?? null,
+            teamId: organisationTeamUserInfo?.organisationTeamId ?? null,
+          },
+          permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER
+        }
+      }
     }
   }
 
@@ -95,7 +114,7 @@ export class UserService {
       if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
         const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(userId) ?? 0
         const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(userId)
-        const organisationResourceLimits = await this.organisationResourceLimitsRepo.getResourceLimitsByOrganisationIdOrFail(organisationUser.getValue().organisationId)
+        const organisationResourceLimits = await this.organisationResourceLimitsRepo.getResourceLimitsByOrganisationIdOrFail(organisationUser.organisationId)
 
         const { configuration } = organisationResourceLimits.getValue()
         return {

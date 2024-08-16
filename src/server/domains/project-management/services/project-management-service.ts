@@ -118,7 +118,7 @@ export class ProjectManagementService {
               orgTeamId: organisationTeamUser.organisationTeamId
             })).map(project => ({
               ...project.getValue(),
-              permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER
+              permissions: project.getValue().userId === userId ? PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER : null
             }))
 
             return projects

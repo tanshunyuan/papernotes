@@ -202,6 +202,7 @@ export const organisationRouter = createTRPCRouter({
       })
     }
   }),
+  /**@todo handle member not in a team */
   getAOrganisationTeam: protectedProcedure.input(z.object({
     organisationId: z.string(),
     teamId: z.string()

@@ -8,6 +8,7 @@ export const PROJECT_PERIMSSIONS = {
 } as const
 
 export const ORGANISATION_TEAM_PERMISSIONS = {
+  /**@description a wildcard for CRUD */
   MANAGE: 'organisation-team:manage',
   CREATE: 'organisation-team:create',
   READ: 'organisation-team:read',

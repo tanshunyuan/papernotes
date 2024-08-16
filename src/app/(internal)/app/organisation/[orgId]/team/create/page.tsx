@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 'use client';
 
 import TextField from "@mui/material/TextField";
@@ -62,7 +63,7 @@ export default function CreateOrganisationTeamPage(props: CreateOrganisationTeam
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit(handleCreateTeam)} sx={{ mt: 2 }}>
+    <Box component="form" onSubmit={handleSubmit(handleCreateTeam)}>
       <Controller
         name="name"
         control={control}
@@ -84,6 +85,11 @@ export default function CreateOrganisationTeamPage(props: CreateOrganisationTeam
         disabled={!isValid || teamCreateMutation.isPending}
       >
         Create
+      </Button>
+      <Button
+        onClick={() => router.push(ROUTE_PATHS.APP.ORGANISATION.HOME(props.params.orgId))}
+      >
+        Cancel
       </Button>
     </Box>
   );

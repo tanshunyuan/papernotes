@@ -37,7 +37,15 @@ export class OrganisationTeamUserRepository {
           with: {
             organisation_user: {
               columns: {
-                userId: true
+                userId: true,
+              },
+              with: {
+                user: {
+                  columns: {
+                    name: true,
+                    email: true
+                  }
+                }
               }
             }
           }
@@ -51,7 +59,9 @@ export class OrganisationTeamUserRepository {
             joinedAt: teamUser.joinedAt,
             leftAt: teamUser.leftAt,
           }).getValue(),
-          userId: teamUser.organisation_user.userId
+          userId: teamUser.organisation_user.userId,
+          name: teamUser.organisation_user.user.name,
+          email: teamUser.organisation_user.user.email
         }
       }
       )

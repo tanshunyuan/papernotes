@@ -221,10 +221,13 @@ export class OrganisationManagementService {
   }
 
 
+  /**@description allow both org and employees to query information */
   public async getOrganisationDetails(organisationId: string, currentUserId: string) {
     try {
       const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
-      if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
+      const organisationUser = await this.organisationUserRepository.getOrganisationUserByUserIdOrNull(currentUserId)
+
+      if (!currentUser.isEmployee() && !organisationUser) throw new Error('You do not have permission to perform this operation')
 
       const organisation = await this.organisationRepository.getOrganisationByIdOrFail(organisationId)
       const organisationUsers = await this.organisationUserRepository.getAllOrganisationUsers(organisationId)

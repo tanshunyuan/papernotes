@@ -44,6 +44,7 @@ export class UserService {
 
     if (user.getValue().plan === USER_PLAN_ENUM.FREE) {
       return {
+        id: user.getValue().id,
         email: user.getValue().email,
         name: user.getValue().name,
         plan: user.getValue().plan
@@ -58,6 +59,7 @@ export class UserService {
       })
 
       return {
+        id: user.getValue().id,
         email: user.getValue().email,
         name: user.getValue().name,
         plan: user.getValue().plan,

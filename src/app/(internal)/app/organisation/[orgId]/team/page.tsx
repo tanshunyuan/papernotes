@@ -21,6 +21,7 @@ interface OrganisationTeamPageProps {
     orgTeamId: string
   }
 }
+/**@deprecated not needed as teams are viewed on the organisation page */
 export default function OrganisationTeamPage(props: OrganisationTeamPageProps) {
   const organisationTeamQuery = api.organisation.getAllOrganisationTeams.useQuery({
     organisationId: props.params.orgId

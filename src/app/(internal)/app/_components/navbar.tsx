@@ -71,7 +71,7 @@ export const AppNavbar = () => {
     </AppBar>
 
     {isPartOfOrganisation ?
-      <Breadcrumbs aria-label="breadcrumb" sx={{ p: '1rem' }}>
+      <Breadcrumbs aria-label="breadcrumb" sx={{ px: '1rem', py: '0.5rem' }}>
         <MuiLink underline="hover" color="inherit" href={ROUTE_PATHS.APP.PROJECT.HOME}>
           {userQuery.data?.organisation?.name}
         </MuiLink>

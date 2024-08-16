@@ -93,7 +93,7 @@ export class OrganisationTeamManagementService {
       if (organisationUser.getValue().role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
 
       const orgTeam = await this.organisationTeamRepo.getOrganisationTeamByIdOrFail(args.teamId)
-      const orgTeamUsers = (await this.organisationTeamUserRepository.getTeamUsersByOrganisationTeamId(args.teamId)).map(item => item.getValue())
+      const orgTeamUsers = (await this.organisationTeamUserRepository.getTeamUsersByOrganisationTeamId(args.teamId))
 
       return {
         orgTeam: orgTeam.getValue(),

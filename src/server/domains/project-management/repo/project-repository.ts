@@ -1,4 +1,4 @@
-import { organisationUsersSchema, projectSchema, userSchema } from './../../../db/schema';
+import { organisationSchema, organisationTeamsSchema, organisationTeamUsersSchema, organisationUsersSchema, projectSchema, userSchema } from './../../../db/schema';
 import { DbService } from '~/server/db';
 import { Project } from '../models/project';
 import { and, count, eq, isNull } from 'drizzle-orm';
@@ -147,11 +147,11 @@ export class ProjectRepository {
     try {
 
       const rawResults = await this.dbService.getQueryClient().select().from(projectSchema)
-      .leftJoin(organisationUsersSchema, eq(organisationUsersSchema.userId, projectSchema.userId))
-      .leftJoin(userSchema, eq(userSchema.id, projectSchema.userId))
-      .where(eq(organisationUsersSchema.organisationId, organisationId));
+        .leftJoin(organisationUsersSchema, eq(organisationUsersSchema.userId, projectSchema.userId))
+        .leftJoin(userSchema, eq(userSchema.id, projectSchema.userId))
+        .where(eq(organisationUsersSchema.organisationId, organisationId));
 
-      if(!rawResults || rawResults.length === 0) return []
+      if (!rawResults || rawResults.length === 0) return []
 
       const projects = rawResults.map(items => {
         return new Project({
@@ -165,10 +165,39 @@ export class ProjectRepository {
       })
 
       return projects
-      
+
     } catch (error) {
       throw new Error(`Error getting all projects for organisation: ${error}`)
     }
 
+  }
+  public async getAllOrganisationTeamProjects(args: {
+    orgTeamId: string
+  }) {
+    try {
+      const rawResults = await this.dbService.getQueryClient().select().from(projectSchema)
+        .leftJoin(userSchema, eq(projectSchema.userId, userSchema.id))
+        .leftJoin(organisationUsersSchema, eq(userSchema.id, organisationUsersSchema.userId))
+        .leftJoin(organisationTeamUsersSchema, eq(organisationUsersSchema.id, organisationTeamUsersSchema.organisationUserId))
+        .leftJoin(organisationTeamsSchema, eq(organisationTeamUsersSchema.organisationTeamId, organisationTeamsSchema.id))
+        .leftJoin(organisationSchema, eq(organisationTeamsSchema.organisationId, organisationSchema.id))
+        .where(eq(organisationTeamsSchema.id, args.orgTeamId)).execute()
+
+      if (!rawResults || rawResults.length === 0) return []
+
+      const results = rawResults.map(items => {
+        return new Project({
+          id: items.projects.id,
+          name: items.projects.name,
+          userId: items.projects.userId,
+          description: items.projects.description,
+          createdBy: items.users?.email,
+          createdAt: items.projects.createdAt
+        })
+      })
+      return results
+    } catch (error) {
+      throw new Error(`Error getting all projects for organisation: ${error}`)
+    }
   }
 }

@@ -9,6 +9,7 @@ import { OrganisationUserRepository } from '../../organisation-management/repo/o
 import { USER_PLAN_ENUM } from '../../user-management/models/user';
 import { ORGANISATION_ROLE_ENUM } from '../../organisation-management/models/organisation-user';
 import { OrganisationResourceLimitsRepository } from '../../organisation-management/repo/organisation-resource-limits-repository';
+import { OrganisationTeamUserRepository } from '../../organisation-management/repo/organisation-team-user-repository';
 
 // food for thought, currently using read_all permission to get all projects is ok when there's no organisation structure.
 // But if there is, it'll bit a tad more complicated to implement.
@@ -18,6 +19,7 @@ export class ProjectManagementService {
     private readonly userRepo: UserRepository,
     private readonly organisationUserRepo: OrganisationUserRepository,
     private readonly organisationResourceLimitsRepo: OrganisationResourceLimitsRepository,
+    private readonly organisationTeamUserRepo: OrganisationTeamUserRepository,
     private readonly authService: AuthorisationService
   ) { }
 
@@ -69,6 +71,7 @@ export class ProjectManagementService {
     }
   }
 
+  /**@todo figure out is it even get project by user id when people are in a organisation and team */
   public async getProjectsByUserId(userId: string) {
     try {
       const user = await this.userRepo.getUserByIdOrFail(userId)
@@ -94,14 +97,35 @@ export class ProjectManagementService {
         }
 
         if (organisationUser?.getValue().role === ORGANISATION_ROLE_ENUM.MEMBER) {
-          const projects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => ({
-            ...project.getValue(),
-            permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER
-          }))
-          return projects
+          // If you're part of a team retrieve all projects for that team
+          // else retrieve all projects for that user
+
+
+          const organisationTeamUser = await this.organisationTeamUserRepo.getTeamUserByOrganisationUserIdOrNull({
+            organisationUserId: organisationUser.getValue().id
+          })
+
+          if (!organisationTeamUser) {
+            // not in a team
+            const projects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => ({
+              ...project.getValue(),
+              permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER
+            }))
+            return projects
+          } else {
+            // in a team
+            const projects = (await this.projectRepo.getAllOrganisationTeamProjects({
+              orgTeamId: organisationTeamUser.organisationTeamId
+            })).map(project => ({
+              ...project.getValue(),
+              permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER
+            }))
+
+            return projects
+          }
         }
 
-        throw new Error('User is not a member of an organisation')
+        throw new Error('User is not on any plan')
       }
     }
 

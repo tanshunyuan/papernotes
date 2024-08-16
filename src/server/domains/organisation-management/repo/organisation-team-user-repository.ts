@@ -34,14 +34,27 @@ export class OrganisationTeamUserRepository {
       const rawResults = await this.dbService.getQueryClient().query.organisationTeamUsersSchema
         .findMany({
           where: eq(organisationTeamUsersSchema.organisationTeamId, organisationTeamId),
+          with: {
+            organisation_user: {
+              columns: {
+                userId: true
+              }
+            }
+          }
         })
       if (!rawResults || rawResults.length === 0) return []
-      const results = rawResults.map(teamUser => new OrganisationTeamUser({
-        organisationTeamId: teamUser.organisationTeamId,
-        organisationUserId: teamUser.organisationUserId,
-        joinedAt: teamUser.joinedAt,
-        leftAt: teamUser.leftAt,
-      }))
+      const results = rawResults.map(teamUser => {
+        return {
+          ...new OrganisationTeamUser({
+            organisationTeamId: teamUser.organisationTeamId,
+            organisationUserId: teamUser.organisationUserId,
+            joinedAt: teamUser.joinedAt,
+            leftAt: teamUser.leftAt,
+          }).getValue(),
+          userId: teamUser.organisation_user.userId
+        }
+      }
+      )
       return results
     }
     catch (error) {
@@ -73,6 +86,10 @@ export class OrganisationTeamUserRepository {
     }
   }
 
+  /**
+   * @description check if user is part of a team 
+   * @todo account for leftAt when querying in the future
+   */
   public async getTeamUserByOrganisationUserIdOrNull(args: {
     organisationUserId: string
   }) {

@@ -78,6 +78,7 @@ export class ProjectRepository {
   }
 
 
+  /**@deprecated use organisationId instead getAllOrganisationProjects*/
   public async getProjectsByUserId(userId: string) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.projectSchema
@@ -104,6 +105,32 @@ export class ProjectRepository {
     }
   }
 
+  /**@warning might be the same as  */
+  public async getProjectsByOrganisationId(args: { orgId: string }) {
+    try {
+      const rawResults = await this.dbService.getQueryClient().query.projectSchema
+        .findMany({
+          where: eq(projectSchema.organisationId, args.orgId),
+          with: {
+            users: {
+              columns: {
+                email: true
+              }
+            }
+          }
+        })
+
+      if (!rawResults || rawResults.length === 0) return []
+
+      const results = rawResults.map(project => {
+        return this.mapper.toDomain({ ...project, createdBy: project.users.email })
+      })
+      return results
+    } catch (error) {
+      throw new Error(`Error getting projects by organisation id: ${error}`)
+    }
+  }
+
   public async getAllProjects() {
     try {
       const rawResults = await this.dbService.getQueryClient().query.projectSchema
@@ -123,29 +150,39 @@ export class ProjectRepository {
     }
   }
 
-  public async getAllOrganisationProjects(organisationId: string) {
+  public async getAllOrganisationProjects(args: { orgId: string }) {
     try {
 
-      const rawResults = await this.dbService.getQueryClient().select().from(projectSchema)
-        .leftJoin(organisationUsersSchema, eq(organisationUsersSchema.userId, projectSchema.userId))
-        .leftJoin(userSchema, eq(userSchema.id, projectSchema.userId))
-        .leftJoin(organisationSchema, eq(organisationSchema.id, organisationUsersSchema.organisationId))
-        .where(eq(organisationUsersSchema.organisationId, organisationId));
+      // const rawResults = await this.dbService.getQueryClient().select().from(projectSchema)
+      //   .leftJoin(organisationUsersSchema, eq(organisationUsersSchema.userId, projectSchema.userId))
+      //   .leftJoin(userSchema, eq(userSchema.id, projectSchema.userId))
+      //   .leftJoin(organisationSchema, eq(organisationSchema.id, organisationUsersSchema.organisationId))
+      //   .where(eq(organisationUsersSchema.organisationId, args.orgId));
+      const rawResults = await this.dbService.getQueryClient().query.projectSchema.findMany({
+        where: eq(projectSchema.organisationId, args.orgId),
+        with: {
+          users: {
+            columns: {
+              email: true
+            }
+          }
+        }
+      })
 
       if (!rawResults || rawResults.length === 0) return []
 
       const projects = rawResults.map(items => {
         return this.mapper.toDomain({
-          id: items.projects.id,
-          name: items.projects.name,
-          userId: items.projects.userId,
-          description: items.projects.description,
+          id: items.id,
+          name: items.name,
+          userId: items.userId,
+          description: items.description,
           createdBy: items.users?.email,
-          createdAt: items.projects.createdAt,
-          updatedAt: items.projects.updatedAt,
-          deletedAt: items.projects.deletedAt,
-          organisationId: items.organisations?.id!,
-          organisationTeamId: null
+          createdAt: items.createdAt,
+          updatedAt: items.updatedAt,
+          deletedAt: items.deletedAt,
+          organisationId: items.organisationId,
+          organisationTeamId: items.organisationTeamId
         })
       })
 

@@ -48,7 +48,7 @@ export const projectRouter = createTRPCRouter({
   getProjectsByUserId: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.auth.userId
     try {
-      const projects = await projectManagementService.getProjectsByUserId(userId)
+      const projects = await projectManagementService.getUserProjects({ userId })
       return projects
     } catch (e) {
       const error = e as Error

@@ -33,11 +33,8 @@ export class ProjectManagementService {
     /**@warning it wont work if user has multiple membership to different organisations */
     try {
       const userDetails = await this.userRepo.getUserByIdOrFail(args.userId)
-      console.log({ userDetails })
       const userMembership = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.userId)
-      console.log({ userMembership })
       const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(args.userId) ?? 0
-      console.log({ projectCount })
 
       console.log('ProjectManagementService.createProject', {
         projectCount
@@ -93,12 +90,16 @@ export class ProjectManagementService {
   }
 
   /**@todo figure out is it even get project by user id when people are in a organisation and team */
-  public async getProjectsByUserId(userId: string) {
+  public async getUserProjects(args: { userId: string }) {
     try {
-      const user = await this.userRepo.getUserByIdOrFail(userId)
+
+      const user = await this.userRepo.getUserByIdOrFail(args.userId)
+      const userMembership = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.userId)
 
       if (user.getValue().plan === USER_PLAN_ENUM.FREE) {
-        const projects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => ({
+        const projects = (await this.projectRepo.getProjectsByOrganisationId({
+          orgId: userMembership.organisationId
+        })).map(project => ({
           ...project.getValue(),
           permissions: PLAN_BASED_ROLE_PERMISSION.FREE
         }))
@@ -106,29 +107,28 @@ export class ProjectManagementService {
       }
 
       if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
-        const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrNull(user.getValue().id)
-        if (organisationUser?.role === ORGANISATION_ROLE_ENUM.ADMIN) {
-          const allProjects = (await this.projectRepo.getAllOrganisationProjects(organisationUser.organisationId)).map(project => {
+        if (userMembership?.role === ORGANISATION_ROLE_ENUM.ADMIN) {
+          const allProjects = (await this.projectRepo.getAllOrganisationProjects({ orgId: userMembership.organisationId })).map(project => {
             return {
               ...project.getValue(),
-              permissions: project.getValue().userId === userId ? PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN : null
+              permissions: project.getValue().userId === args.userId ? PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN : null
             }
           })
           return allProjects
         }
 
-        if (organisationUser?.role === ORGANISATION_ROLE_ENUM.MEMBER) {
+        if (userMembership?.role === ORGANISATION_ROLE_ENUM.MEMBER) {
           // If you're part of a team retrieve all projects for that team
           // else retrieve all projects for that user
 
 
           const organisationTeamUser = await this.organisationTeamUserRepo.getTeamUserByOrganisationUserIdOrNull({
-            organisationUserId: organisationUser.id
+            organisationUserId: userMembership.id
           })
 
           if (!organisationTeamUser) {
             // not in a team
-            const projects = (await this.projectRepo.getProjectsByUserId(userId)).map(project => ({
+            const projects = (await this.projectRepo.getProjectsByOrganisationId({ orgId: userMembership.organisationId })).map(project => ({
               ...project.getValue(),
               permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER
             }))
@@ -139,7 +139,7 @@ export class ProjectManagementService {
               orgTeamId: organisationTeamUser.organisationTeamId
             })).map(project => ({
               ...project.getValue(),
-              permissions: project.getValue().userId === userId ? PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER : null
+              permissions: project.getValue().userId === args.userId ? PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER : null
             }))
 
             return projects

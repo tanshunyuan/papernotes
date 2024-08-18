@@ -106,11 +106,14 @@ export class ProjectRepository {
   }
 
   /**@warning might be the same as  */
-  public async getProjectsByOrganisationId(args: { orgId: string }) {
+  public async getProjectsByOrganisationIdAndUserId(args: { orgId: string, userId: string }) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.projectSchema
         .findMany({
-          where: eq(projectSchema.organisationId, args.orgId),
+          where: and(
+            eq(projectSchema.organisationId, args.orgId), 
+          eq(projectSchema.userId, args.userId)
+        ),
           with: {
             users: {
               columns: {

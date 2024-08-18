@@ -97,8 +97,9 @@ export class ProjectManagementService {
       const userMembership = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.userId)
 
       if (user.getValue().plan === USER_PLAN_ENUM.FREE) {
-        const projects = (await this.projectRepo.getProjectsByOrganisationId({
-          orgId: userMembership.organisationId
+        const projects = (await this.projectRepo.getProjectsByOrganisationIdAndUserId({
+          orgId: userMembership.organisationId,
+          userId: args.userId
         })).map(project => ({
           ...project.getValue(),
           permissions: PLAN_BASED_ROLE_PERMISSION.FREE
@@ -128,7 +129,7 @@ export class ProjectManagementService {
 
           if (!organisationTeamUser) {
             // not in a team
-            const projects = (await this.projectRepo.getProjectsByOrganisationId({ orgId: userMembership.organisationId })).map(project => ({
+            const projects = (await this.projectRepo.getProjectsByOrganisationIdAndUserId({ orgId: userMembership.organisationId, userId: args.userId })).map(project => ({
               ...project.getValue(),
               permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER
             }))

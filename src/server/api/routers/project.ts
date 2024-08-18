@@ -9,6 +9,7 @@ import { projectManagementService } from '~/server/domains/project-management/se
 const createProjectValidator = z.object({
   name: z.string().min(1).max(100),
   description: z.string().min(1).max(100),
+  teamId: z.string().optional()
 })
 
 const updateProjectValidator = z.object({
@@ -29,7 +30,12 @@ export const projectRouter = createTRPCRouter({
         input,
         userId
       })
-      await projectManagementService.createProject(userId, input.name, input.description)
+      await projectManagementService.createProject({
+        description: input.description,
+        name: input.name,
+        userId,
+        teamId: input.teamId ?? null
+      })
     } catch (e) {
       const error = e as Error
       throw new TRPCError({

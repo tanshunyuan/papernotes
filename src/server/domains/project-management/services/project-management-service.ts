@@ -33,8 +33,11 @@ export class ProjectManagementService {
     /**@warning it wont work if user has multiple membership to different organisations */
     try {
       const userDetails = await this.userRepo.getUserByIdOrFail(args.userId)
+      console.log({ userDetails })
       const userMembership = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.userId)
+      console.log({ userMembership })
       const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(args.userId) ?? 0
+      console.log({ projectCount })
 
       console.log('ProjectManagementService.createProject', {
         projectCount

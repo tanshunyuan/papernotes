@@ -7,8 +7,10 @@ import { type ProjectRepository } from "../../project-management/repo/project-re
 import { type OrganisationResourceLimitsRepository } from "../../organisation-management/repo/organisation-resource-limits-repository";
 import { type OrganisationRepository } from "../../organisation-management/repo/organisation-repository";
 import { type OrganisationTeamUserRepository } from '../../organisation-management/repo/organisation-team-user-repository';
-import { ORGANISATION_ROLE_ENUM } from "../../organisation-management/models/organisation-user";
+import { ORGANISATION_ROLE_ENUM, OrganisationUser } from "../../organisation-management/models/organisation-user";
 import { PLAN_BASED_ROLE_PERMISSION } from "../../authorisation/utils/permissions";
+import { Organisation } from "../../organisation-management/models/organisation";
+import { uuid } from "uuidv4";
 
 export class UserService {
   constructor(
@@ -26,16 +28,42 @@ export class UserService {
       if (existingUser) return null
 
       const clerkUser = await clerkClient.users.getUser(userId)
+      const fullname = `${clerkUser.firstName} ${clerkUser.lastName}`
 
       const user = new User({
         id: userId,
         email: clerkUser.primaryEmailAddress?.emailAddress ?? '',
-        name: `${clerkUser.firstName} ${clerkUser.lastName}`,
+        name: fullname,
         /**@todo learn how to hide this in the class */
         plan: USER_PLAN_ENUM.FREE
       })
 
+      const organisationId = uuid()
+
+      const personalOrganisation = new Organisation({
+        name: 'Personal Organisation',
+        description: `${fullname}'s personal organisation`,
+        id: organisationId,
+        createdAt: new Date(),
+        maxSeats: 1,
+        planDurationStart: new Date(),
+        planDurationEnd: new Date(new Date().setFullYear(new Date().getFullYear() + 90)),
+        updatedAt: new Date(),
+      })
+
+      const userMembership = new OrganisationUser({
+        id: uuid(),
+        organisationId,
+        userId,
+        role: ORGANISATION_ROLE_ENUM.ADMIN,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+
       await this.userRepo.save(user)
+      await this.organisationRepo.save(personalOrganisation)
+      await this.organisationUserRepo.save(userMembership)
+
     } catch (error) {
       throw new Error(`Error registering user: ${error}`)
     }

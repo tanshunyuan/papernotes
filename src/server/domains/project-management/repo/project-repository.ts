@@ -1,4 +1,4 @@
-import { organisationSchema, organisationTeamsSchema, organisationTeamUsersSchema, organisationUsersSchema, projectSchema, userSchema } from './../../../db/schema';
+import { membershipsSchema, organisationSchema, organisationTeamMembersSchema, organisationTeamsSchema, projectSchema, userSchema } from './../../../db/schema';
 import { DbService } from '~/server/db';
 import { Project } from '../models/project';
 import { and, count, eq, isNull } from 'drizzle-orm';
@@ -157,10 +157,10 @@ export class ProjectRepository {
     try {
 
       // const rawResults = await this.dbService.getQueryClient().select().from(projectSchema)
-      //   .leftJoin(organisationUsersSchema, eq(organisationUsersSchema.userId, projectSchema.userId))
+      //   .leftJoin(MembershipsSchema, eq(MembershipsSchema.userId, projectSchema.userId))
       //   .leftJoin(userSchema, eq(userSchema.id, projectSchema.userId))
-      //   .leftJoin(organisationSchema, eq(organisationSchema.id, organisationUsersSchema.organisationId))
-      //   .where(eq(organisationUsersSchema.organisationId, args.orgId));
+      //   .leftJoin(organisationSchema, eq(organisationSchema.id, MembershipsSchema.organisationId))
+      //   .where(eq(MembershipsSchema.organisationId, args.orgId));
       const rawResults = await this.dbService.getQueryClient().query.projectSchema.findMany({
         where: eq(projectSchema.organisationId, args.orgId),
         with: {
@@ -202,9 +202,9 @@ export class ProjectRepository {
     try {
       const rawResults = await this.dbService.getQueryClient().select().from(projectSchema)
         .leftJoin(userSchema, eq(projectSchema.userId, userSchema.id))
-        .leftJoin(organisationUsersSchema, eq(userSchema.id, organisationUsersSchema.userId))
-        .leftJoin(organisationTeamUsersSchema, eq(organisationUsersSchema.id, organisationTeamUsersSchema.organisationUserId))
-        .leftJoin(organisationTeamsSchema, eq(organisationTeamUsersSchema.organisationTeamId, organisationTeamsSchema.id))
+        .leftJoin(membershipsSchema, eq(userSchema.id, membershipsSchema.userId))
+        .leftJoin(organisationTeamMembersSchema, eq(membershipsSchema.id, organisationTeamMembersSchema.membershipId))
+        .leftJoin(organisationTeamsSchema, eq(organisationTeamMembersSchema.organisationTeamId, organisationTeamsSchema.id))
         .leftJoin(organisationSchema, eq(organisationTeamsSchema.organisationId, organisationSchema.id))
         .where(eq(organisationTeamsSchema.id, args.orgTeamId)).execute()
 

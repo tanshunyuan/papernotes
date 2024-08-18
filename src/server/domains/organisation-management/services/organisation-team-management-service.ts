@@ -1,11 +1,11 @@
 import { uuid } from "uuidv4"
 import { OrganisationTeam } from "../models/organisation-team"
-import { ORGANISATION_ROLE_ENUM } from "../models/organisation-user"
+import { MEMBERSHIP_ROLE_ENUM } from "../models/membership"
 import { OrganisationRepository } from "../repo/organisation-repository"
 import { OrganisationTeamRepository } from "../repo/organisation-team-repository"
-import { OrganisationUserRepository } from "../repo/organisation-user-repository"
-import { OrganisationTeamUserRepository } from '../repo/organisation-team-user-repository';
-import { OrganisationTeamUser } from "../models/organisation-team-user"
+import { MembershipRepository } from "../repo/membership-repository"
+import { OrganisationTeamMemberRepository } from '../repo/organisation-team-member-repository';
+import { OrganisationTeamMember } from "../models/organisation-team-member"
 
 interface CreateTeamArgs {
   organisationId: string
@@ -24,15 +24,15 @@ export class OrganisationTeamManagementService {
   constructor(
 
     private readonly organisationRepo: OrganisationRepository,
-    private readonly organisationUserRepo: OrganisationUserRepository,
+    private readonly membershipRepo: MembershipRepository,
     private readonly organisationTeamRepo: OrganisationTeamRepository,
-    private readonly organisationTeamUserRepository: OrganisationTeamUserRepository
+    private readonly organisationTeamMemberRepository: OrganisationTeamMemberRepository
   ) { }
 
   public async createTeam(args: CreateTeamArgs) {
     try {
-      const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.currentUserId)
-      if (organisationUser.role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+      const Membership = await this.membershipRepo.getMembershipByUserIdOrFail(args.currentUserId)
+      if (Membership.role !== MEMBERSHIP_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
 
       const orgTeam = new OrganisationTeam({
         id: uuid(),
@@ -48,37 +48,42 @@ export class OrganisationTeamManagementService {
     }
   }
 
-  public async assignAOrgUserToTeam(args: AssignAOrgUserToTeamArgs) {
+  public async assignAMemberToTeam(args: {
+    organisationId: string
+    currentUserId: string
+    orgTeamMemberId: string
+    orgTeamId: string
+  }) {
     try {
-      const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.currentUserId)
-      if (organisationUser.role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+      const membership = await this.membershipRepo.getMembershipByUserIdOrFail(args.currentUserId)
+      if (membership.role !== MEMBERSHIP_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
 
-      const existingOrgTeamUser = await this.organisationTeamUserRepository.getTeamUserByOrganisationTeamIdAndUserIdOrNull({
+      const existingOrgTeamMember = await this.organisationTeamMemberRepository.getTeamMemberByOrganisationTeamIdAndUserIdOrNull({
         organisationTeamId: args.orgTeamId,
-        organisationUserId: args.orgTeamMemberId
+        MembershipId: args.orgTeamMemberId
       })
 
       /**@todo fix whacky error handling */
-      if (existingOrgTeamUser) throw new Error('This user is already assigned to this team')
+      if (existingOrgTeamMember) throw new Error('This member is already assigned to this team')
 
-      const orgTeamUser = new OrganisationTeamUser({
+      const orgTeamMember = new OrganisationTeamMember({
         organisationTeamId: args.orgTeamId,
-        organisationUserId: args.orgTeamMemberId,
+        membershipId: args.orgTeamMemberId,
         joinedAt: new Date(),
         leftAt: null
       })
-      await this.organisationTeamUserRepository.save(orgTeamUser)
+      await this.organisationTeamMemberRepository.save(orgTeamMember)
 
     } catch (error) {
-      throw new Error(`Error assigning an org user to a team: ${error}`)
+      throw new Error(`Error assigning an org member to a team: ${error}`)
     }
   }
 
   /**@todo might need to adapt team details and allow gignite employee to query as well */
   public async getAllOrganisationTeams(args: { orgId: string, currentUserId: string }) {
     try {
-      const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrNull(args.currentUserId)
-      if (!organisationUser) throw new Error('You do not have permission to perform this operation')
+      const Membership = await this.membershipRepo.getMembershipByUserIdOrNull(args.currentUserId)
+      if (!Membership) throw new Error('You do not have permission to perform this operation')
 
       const orgTeams = (await this.organisationTeamRepo.getAllOrganisationTeamsByOrganisationId(args.orgId)).map(item => item.getValue())
       return orgTeams
@@ -89,16 +94,16 @@ export class OrganisationTeamManagementService {
 
   public async getOrganisationTeamDetails(args: { orgId: string, teamId: string, currentUserId: string }) {
     try {
-      const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.currentUserId)
+      const Membership = await this.membershipRepo.getMembershipByUserIdOrFail(args.currentUserId)
       /**@todo only allow admin and fellow team mbmer to query */
-      if (organisationUser.role !== ORGANISATION_ROLE_ENUM.ADMIN && !organisationUser.organisationTeamIds.includes(args.teamId)) throw new Error('You do not have permission to perform this operation')
+      if (Membership.role !== MEMBERSHIP_ROLE_ENUM.ADMIN && !Membership.organisationTeamIds.includes(args.teamId)) throw new Error('You do not have permission to perform this operation')
 
       const orgTeam = await this.organisationTeamRepo.getOrganisationTeamByIdOrFail(args.teamId)
-      const orgTeamUsers = (await this.organisationTeamUserRepository.getTeamUsersByOrganisationTeamId(args.teamId))
+      const orgTeamMembers = (await this.organisationTeamMemberRepository.getTeamMembersByOrganisationTeamId(args.teamId))
 
       return {
         orgTeam: orgTeam.getValue(),
-        orgTeamUsers
+        orgTeamMembers
       }
     } catch (error) {
       throw new Error(`Error getting organisation team details: ${error}`)
@@ -107,20 +112,20 @@ export class OrganisationTeamManagementService {
   }
 
   /**@todo update query or filter to show that member is assigned alrdy so that unassignment is possible */
-  public async getAllOrganisationTeamUsers(args: {
+  public async getAllOrganisationMemberships(args: {
     orgId: string,
     teamId: string,
     currentUserId: string
   }) {
     try {
-      const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.currentUserId)
-      if (organisationUser.role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+      const Membership = await this.membershipRepo.getMembershipByUserIdOrFail(args.currentUserId)
+      if (Membership.role !== MEMBERSHIP_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
 
-      const orgUsers = (await this.organisationUserRepo.getAllOrganisationUsers(args.orgId)).filter(user => user.role === ORGANISATION_ROLE_ENUM.MEMBER)
+      const orgUsers = (await this.membershipRepo.getAllMemberships(args.orgId)).filter(user => user.role === MEMBERSHIP_ROLE_ENUM.MEMBER)
       return orgUsers
 
     } catch (error) {
-      throw new Error(`Error getting organisation team users: ${error}`)
+      throw new Error(`Error getting organisation team members: ${error}`)
     }
   }
 
@@ -130,8 +135,8 @@ export class OrganisationTeamManagementService {
     name: string
   }) {
     try {
-      const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.currentUserId)
-      if (organisationUser.role !== ORGANISATION_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+      const Membership = await this.membershipRepo.getMembershipByUserIdOrFail(args.currentUserId)
+      if (Membership.role !== MEMBERSHIP_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
       const existingOrgTeam = await this.organisationTeamRepo.getOrganisationTeamByIdOrFail(args.orgTeamId)
 
       const updatedOrganisationTeam = new OrganisationTeam({

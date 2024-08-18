@@ -1,8 +1,8 @@
 import { uuid } from "uuidv4";
 import { Organisation } from "../models/organisation";
 import { OrganisationRepository } from "../repo/organisation-repository";
-import { OrganisationUserRepository } from "../repo/organisation-user-repository";
-import { ORGANISATION_ROLE_ENUM, OrganisationUser } from "../models/organisation-user";
+import { MembershipRepository } from "../repo/membership-repository";
+import { MEMBERSHIP_ROLE_ENUM, Membership } from "../models/membership";
 import { clerkClient } from '@clerk/nextjs/server';
 import { User, USER_PLAN_ENUM } from "../../user-management/models/user";
 import { UserRepository } from "../../user-management/repo/user-repository";
@@ -36,10 +36,10 @@ interface AddAUserToOrganisationArgs {
   }
 }
 
-interface UpdateOrganisationUserRoleArgs {
+interface UpdateMembershipRoleArgs {
   currentUserId: string;
-  organisationUserId: string;
-  role: ORGANISATION_ROLE_ENUM;
+  MembershipId: string;
+  role: MEMBERSHIP_ROLE_ENUM;
 }
 
 interface UpdateOrganisationResourceLimitsArgs {
@@ -55,7 +55,7 @@ export class OrganisationManagementService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly organisationRepository: OrganisationRepository,
-    private readonly organisationUserRepository: OrganisationUserRepository,
+    private readonly MembershipRepository: MembershipRepository,
     private readonly organisationResourceLimitsRepository: OrganisationResourceLimitsRepository
   ) { }
 
@@ -127,18 +127,18 @@ export class OrganisationManagementService {
         plan: USER_PLAN_ENUM.ENTERPRISE
       })
 
-      const organisationUser = new OrganisationUser({
+      const membership = new Membership({
         id: uuid(),
         organisationId,
         userId: user.getValue().id,
         createdAt: new Date(),
         updatedAt: new Date(),
         /**@todo to change this into dynamic */
-        role: ORGANISATION_ROLE_ENUM.MEMBER
+        role: MEMBERSHIP_ROLE_ENUM.MEMBER
       })
 
       await this.userRepository.save(user)
-      await this.organisationUserRepository.save(organisationUser)
+      await this.MembershipRepository.save(membership)
 
     } catch (error) {
       throw new Error(`Error creating organisation user: ${error}`)
@@ -146,18 +146,18 @@ export class OrganisationManagementService {
   }
 
   /**@todo might want to consider adding a fn to centralise updates to organisation */
-  public async updateOrganisationUserRole(args: UpdateOrganisationUserRoleArgs) {
-    const { currentUserId, organisationUserId, role } = args
+  public async updateMembershipRole(args: UpdateMembershipRoleArgs) {
+    const { currentUserId, MembershipId, role } = args
     try {
       const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
       if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
 
-      const organisationUser = await this.organisationUserRepository.getOrganisationUserByIdOrFail(organisationUserId)
-      const updatedOrganisationUser = new OrganisationUser({
-        ...organisationUser.getValue(),
+      const membership = await this.MembershipRepository.getMembershipByIdOrFail(MembershipId)
+      const updatedMembership = new Membership({
+        ...membership.getValue(),
         role,
       })
-      await this.organisationUserRepository.updateOrganisationUserRole(updatedOrganisationUser)
+      await this.MembershipRepository.updateMembershipRole(updatedMembership)
     } catch (error) {
       throw new Error(`Error updating organisation user role: ${error}`)
     }
@@ -225,17 +225,17 @@ export class OrganisationManagementService {
   public async getOrganisationDetails(organisationId: string, currentUserId: string) {
     try {
       const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
-      const organisationUser = await this.organisationUserRepository.getOrganisationUserByUserIdOrNull(currentUserId)
+      const Membership = await this.MembershipRepository.getMembershipByUserIdOrNull(currentUserId)
 
-      if (!currentUser.isEmployee() && !organisationUser) throw new Error('You do not have permission to perform this operation')
+      if (!currentUser.isEmployee() && !Membership) throw new Error('You do not have permission to perform this operation')
 
       const organisation = await this.organisationRepository.getOrganisationByIdOrFail(organisationId)
-      const organisationUsers = await this.organisationUserRepository.getAllOrganisationUsers(organisationId)
+      const Memberships = await this.MembershipRepository.getAllMemberships(organisationId)
       const organisationResourceLimits = await this.organisationResourceLimitsRepository.getResourceLimitsByOrganisationIdOrNull(organisationId)
 
       const results = {
         organisation: organisation.getValue(),
-        users: organisationUsers,
+        users: Memberships,
         resourceLimits: organisationResourceLimits?.getValue() ?? null
       }
       console.log(results)

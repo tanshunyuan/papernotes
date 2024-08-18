@@ -74,7 +74,7 @@ export default function OrganisationTeamDetailsPage(props: OrganisationTeamDetai
         <Button variant="contained" onClick={() => setOpenAddOrgTeamMemberDialog(true)}>Add Members</Button>
       </Box>
 
-      {isEmpty(organisationTeamDetailsQuery.data.orgTeamUsers) ? <>
+      {isEmpty(organisationTeamDetailsQuery.data.orgTeamMembers) ? <>
         <Typography>No members</Typography>
       </> :
         <TableContainer component={Paper}>
@@ -87,7 +87,7 @@ export default function OrganisationTeamDetailsPage(props: OrganisationTeamDetai
               </TableRow>
             </TableHead>
             <TableBody>
-              {organisationTeamDetailsQuery.data.orgTeamUsers.map((row, index) => (
+              {organisationTeamDetailsQuery.data.orgTeamMembers.map((row, index) => (
                 <TableRow
                   key={index}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

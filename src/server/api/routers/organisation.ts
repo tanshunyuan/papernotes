@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { organisationManagementService, organisationTeamManagementService } from "~/server/domains/organisation-management/services";
 import { z } from "zod";
-import { ORGANISATION_ROLE_ENUM } from "~/server/domains/organisation-management/models/organisation-user";
+import { MEMBERSHIP_ROLE_ENUM } from "~/server/domains/organisation-management/models/membership";
 
 const createOrganisationValidator = z.object({
   name: z.string(),
@@ -106,16 +106,16 @@ export const organisationRouter = createTRPCRouter({
       })
     }
   }),
-  updateOrganisationUserRole: protectedProcedure.input(z.object({
-    organisationUserId: z.string(),
+  updateMembershipRole: protectedProcedure.input(z.object({
+    MembershipId: z.string(),
     role: z.enum(['ADMIN', 'MEMBER'])
   })).mutation(async ({ ctx, input }) => {
     try {
       const currentUserId = ctx.auth.userId
-      await organisationManagementService.updateOrganisationUserRole({
+      await organisationManagementService.updateMembershipRole({
         currentUserId,
-        organisationUserId: input.organisationUserId,
-        role: ORGANISATION_ROLE_ENUM[input.role]
+        MembershipId: input.MembershipId,
+        role: MEMBERSHIP_ROLE_ENUM[input.role]
       })
     } catch (e) {
       const error = e as Error
@@ -224,18 +224,18 @@ export const organisationRouter = createTRPCRouter({
     }
   }),
 
-  getAllOrganisationTeamUsers: protectedProcedure.input(z.object({
+  getAllOrganisationMemberships: protectedProcedure.input(z.object({
     organisationId: z.string(),
     teamId: z.string()
   })).query(async ({ ctx, input }) => {
     try {
       const userId = ctx.auth.userId
-      const teamUsers = await organisationTeamManagementService.getAllOrganisationTeamUsers({
+      const teamMembers = await organisationTeamManagementService.getAllOrganisationMemberships({
         currentUserId: userId,
         orgId: input.organisationId,
         teamId: input.teamId
       })
-      return teamUsers
+      return teamMembers
     } catch (e) {
       const error = e as Error
       throw new TRPCError({
@@ -252,7 +252,7 @@ export const organisationRouter = createTRPCRouter({
   })).mutation(async ({ ctx, input }) => {
     try {
       const userId = ctx.auth.userId
-      await organisationTeamManagementService.assignAOrgUserToTeam({
+      await organisationTeamManagementService.assignAMemberToTeam({
         currentUserId: userId,
         organisationId: input.organisationId,
         orgTeamId: input.teamId,

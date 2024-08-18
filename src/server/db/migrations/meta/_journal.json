@@ -85,6 +85,20 @@
       "when": 1723954456909,
       "tag": "0011_blue_glorian",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1723963926070,
+      "tag": "0012_illegal_silver_fox",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1723964082811,
+      "tag": "0013_round_sentry",
+      "breakpoints": true
     }
   ]
 }

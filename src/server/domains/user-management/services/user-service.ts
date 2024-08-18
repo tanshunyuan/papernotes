@@ -2,12 +2,12 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { User, USER_PLAN_ENUM } from "../models/user";
 import { ProjectResourceLimits } from "../../authorisation/utils/resource-limits";
 import { type UserRepository } from "../repo/user-repository";
-import { type OrganisationUserRepository } from "../../organisation-management/repo/organisation-user-repository";
+import { type MembershipRepository } from "../../organisation-management/repo/membership-repository";
 import { type ProjectRepository } from "../../project-management/repo/project-repository";
 import { type OrganisationResourceLimitsRepository } from "../../organisation-management/repo/organisation-resource-limits-repository";
 import { type OrganisationRepository } from "../../organisation-management/repo/organisation-repository";
-import { type OrganisationTeamUserRepository } from '../../organisation-management/repo/organisation-team-user-repository';
-import { ORGANISATION_ROLE_ENUM, OrganisationUser } from "../../organisation-management/models/organisation-user";
+import { type OrganisationTeamMemberRepository } from '../../organisation-management/repo/organisation-team-member-repository';
+import { MEMBERSHIP_ROLE_ENUM, Membership } from "../../organisation-management/models/membership";
 import { PLAN_BASED_ROLE_PERMISSION } from "../../authorisation/utils/permissions";
 import { Organisation } from "../../organisation-management/models/organisation";
 import { uuid } from "uuidv4";
@@ -17,9 +17,9 @@ export class UserService {
     private readonly userRepo: UserRepository,
     private readonly projectRepo: ProjectRepository,
     private readonly organisationRepo: OrganisationRepository,
-    private readonly organisationUserRepo: OrganisationUserRepository,
+    private readonly membershipRepo: MembershipRepository,
     private readonly organisationResourceLimitsRepo: OrganisationResourceLimitsRepository,
-    private readonly organisationTeamUserRepo: OrganisationTeamUserRepository,
+    private readonly organisationTeamMemberRepo: OrganisationTeamMemberRepository,
   ) { }
 
   public async registerExistingClerkUser(userId: string) {
@@ -51,18 +51,18 @@ export class UserService {
         updatedAt: new Date(),
       })
 
-      const userMembership = new OrganisationUser({
+      const userMembership = new Membership({
         id: uuid(),
         organisationId,
         userId,
-        role: ORGANISATION_ROLE_ENUM.ADMIN,
+        role: MEMBERSHIP_ROLE_ENUM.ADMIN,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
 
       await this.userRepo.save(user)
       await this.organisationRepo.save(personalOrganisation)
-      await this.organisationUserRepo.save(userMembership)
+      await this.membershipRepo.save(userMembership)
 
     } catch (error) {
       throw new Error(`Error registering user: ${error}`)
@@ -82,12 +82,12 @@ export class UserService {
     }
 
     if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
-      const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(userId)
-      const organisation = await this.organisationRepo.getOrganisationByIdOrFail(organisationUser.organisationId)
-      const organisationTeamUserInfo = await this.organisationTeamUserRepo.getTeamUserByOrganisationUserIdOrNull({
-        organisationUserId: organisationUser.id,
+      const Membership = await this.membershipRepo.getMembershipByUserIdOrFail(userId)
+      const organisation = await this.organisationRepo.getOrganisationByIdOrFail(Membership.organisationId)
+      const organisationTeamMemberInfo = await this.organisationTeamMemberRepo.getTeamMemberByMembershipIdOrNull({
+        MembershipId: Membership.id,
       })
-      if (organisationUser.role === ORGANISATION_ROLE_ENUM.ADMIN) {
+      if (Membership.role === MEMBERSHIP_ROLE_ENUM.ADMIN) {
         return {
           id: user.getValue().id,
           email: user.getValue().email,
@@ -96,14 +96,14 @@ export class UserService {
           organisation: {
             id: organisation.getValue().id,
             name: organisation.getValue().name,
-            teamName: organisationTeamUserInfo?.teamName ?? null,
-            teamId: organisationTeamUserInfo?.organisationTeamId ?? null,
+            teamName: organisationTeamMemberInfo?.teamName ?? null,
+            teamId: organisationTeamMemberInfo?.organisationTeamId ?? null,
           },
           permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN
         }
       }
 
-      if (organisationUser.role === ORGANISATION_ROLE_ENUM.MEMBER) {
+      if (Membership.role === MEMBERSHIP_ROLE_ENUM.MEMBER) {
         return {
           id: user.getValue().id,
           email: user.getValue().email,
@@ -112,8 +112,8 @@ export class UserService {
           organisation: {
             id: organisation.getValue().id,
             name: organisation.getValue().name,
-            teamName: organisationTeamUserInfo?.teamName ?? null,
-            teamId: organisationTeamUserInfo?.organisationTeamId ?? null,
+            teamName: organisationTeamMemberInfo?.teamName ?? null,
+            teamId: organisationTeamMemberInfo?.organisationTeamId ?? null,
           },
           permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER
         }
@@ -141,8 +141,8 @@ export class UserService {
 
       if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
         const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(userId) ?? 0
-        const organisationUser = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(userId)
-        const organisationResourceLimits = await this.organisationResourceLimitsRepo.getResourceLimitsByOrganisationIdOrFail(organisationUser.organisationId)
+        const Membership = await this.membershipRepo.getMembershipByUserIdOrFail(userId)
+        const organisationResourceLimits = await this.organisationResourceLimitsRepo.getResourceLimitsByOrganisationIdOrFail(Membership.organisationId)
 
         const { configuration } = organisationResourceLimits.getValue()
         return {

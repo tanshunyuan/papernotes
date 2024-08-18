@@ -36,12 +36,12 @@ export const UpdateOrgUserDialog = (props: UpdateOrgUserDialogProps) => {
     },
   });
 
-  const updateOrganisationUserRoleMutation = api.organisation.updateOrganisationUserRole.useMutation();
+  const updateMembershipRoleMutation = api.organisation.updateMembershipRole.useMutation();
 
   const handleUpdateOrgUser = () => {
     handleSubmit(async (data) => {
-      updateOrganisationUserRoleMutation.mutate({
-        organisationUserId: orgUserId,
+      updateMembershipRoleMutation.mutate({
+        MembershipId: orgUserId,
         role: data.role,
       },
         {
@@ -143,7 +143,7 @@ export const UpdateOrgUserDialog = (props: UpdateOrgUserDialogProps) => {
             fontSize: "0.875rem",
             paddingInline: "1.75rem",
           }}
-          disabled={!isValid || updateOrganisationUserRoleMutation.isPending || updateOrganisationUserRoleMutation.isSuccess}
+          disabled={!isValid || updateMembershipRoleMutation.isPending || updateMembershipRoleMutation.isSuccess}
           type="submit"
           color="primary"
           variant="contained"

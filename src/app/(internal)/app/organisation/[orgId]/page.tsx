@@ -165,7 +165,7 @@ const MemberOrganisationTeamInfo = (props: {
           </TableHead>
           <TableBody>
             {getAOrganisationTeamDetailQuery.data ?
-              getAOrganisationTeamDetailQuery.data.orgTeamUsers.map((row) => (
+              getAOrganisationTeamDetailQuery.data.orgTeamMembers.map((row) => (
                 <TableRow
                   key={row.name}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

@@ -86,7 +86,7 @@ export const organisationSchema = createTable('organisations', {
 })
 
 export const organisationSchemaRelations = relations(organisationSchema, ({ many, one }) => ({
-  organisation_users: many(organisationUsersSchema),
+  membership: many(membershipsSchema),
   resource_limits: one(organisationResourceLimitsSchema),
   organisation_teams: many(organisationTeamsSchema),
   projects: many(projectSchema)
@@ -107,7 +107,7 @@ export const organisationResourceLimitsSchemaRelations = relations(organisationR
   })
 }))
 
-export const organisationUsersSchema = createTable('organisation_users', {
+export const membershipsSchema = createTable('memberships', {
   id: text('id').primaryKey().notNull(),
   organisationId: text('organisation_id').references(() => organisationSchema.id).notNull(),
   userId: text('user_id').references(() => userSchema.id).notNull(),
@@ -116,16 +116,16 @@ export const organisationUsersSchema = createTable('organisation_users', {
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
 })
 
-export const organisationUsersSchemaRelations = relations(organisationUsersSchema, ({ one, many }) => ({
+export const membershipsSchemaRelations = relations(membershipsSchema, ({ one, many }) => ({
   organisation: one(organisationSchema, {
-    fields: [organisationUsersSchema.organisationId],
+    fields: [membershipsSchema.organisationId],
     references: [organisationSchema.id]
   }),
   user: one(userSchema, {
-    fields: [organisationUsersSchema.userId],
+    fields: [membershipsSchema.userId],
     references: [userSchema.id]
   }),
-  organisation_team_users: many(organisationTeamUsersSchema)
+  organisation_team_members: many(organisationTeamMembersSchema)
 }))
 
 export const organisationTeamsSchema = createTable('organisation_teams', {
@@ -142,28 +142,28 @@ export const organisationTeamsSchemaRelations = relations(organisationTeamsSchem
     fields: [organisationTeamsSchema.organisationId],
     references: [organisationSchema.id]
   }),
-  organisation_team_users: many(organisationTeamUsersSchema),
+  organisation_team_members: many(organisationTeamMembersSchema),
   projects: many(projectSchema)
 }))
 
-export const organisationTeamUsersSchema = createTable('organisation_team_users', {
+export const organisationTeamMembersSchema = createTable('organisation_team_members', {
   organisationTeamId: text('organisation_team_id').references(() => organisationTeamsSchema.id).notNull(),
-  organisationUserId: text('organisation_user_id').references(() => organisationUsersSchema.id).notNull(),
+  membershipId: text('membership_id').references(() => membershipsSchema.id).notNull(),
   joinedAt: timestamp('joined_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   leftAt: timestamp('left_at')
 }, (t) => ({
   pk: primaryKey({
-    columns: [t.organisationTeamId, t.organisationUserId]
+    columns: [t.organisationTeamId, t.membershipId]
   })
 }))
 
-export const organisationTeamUsersRelations = relations(organisationTeamUsersSchema, ({ one }) => ({
+export const organisationTeamMembersRelations = relations(organisationTeamMembersSchema, ({ one }) => ({
   organisation_team: one(organisationTeamsSchema, {
-    fields: [organisationTeamUsersSchema.organisationTeamId],
+    fields: [organisationTeamMembersSchema.organisationTeamId],
     references: [organisationTeamsSchema.id],
   }),
-  organisation_user: one(organisationUsersSchema, {
-    fields: [organisationTeamUsersSchema.organisationUserId],
-    references: [organisationUsersSchema.id],
+  members: one(membershipsSchema, {
+    fields: [organisationTeamMembersSchema.membershipId],
+    references: [membershipsSchema.id],
   })
 }))

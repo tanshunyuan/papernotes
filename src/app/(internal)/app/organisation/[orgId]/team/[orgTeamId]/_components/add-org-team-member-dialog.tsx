@@ -22,12 +22,12 @@ type AddOrgTeamMemberDialogProps = {
 export const AddOrgTeamMemberDialog = (props: AddOrgTeamMemberDialogProps) => {
   const { open, setOpen } = props;
 
-  const getAllOrganisationTeamUsersQuery = api.organisation.getAllOrganisationTeamUsers.useQuery({
+  const getAllOrganisationMembershipsQuery = api.organisation.getAllOrganisationMemberships.useQuery({
     teamId: props.teamId,
     organisationId: props.orgId
   });
 
-  const assignOrganisationUserToTeamMutation = api.organisation.assignUserToTeam.useMutation();
+  const assignMembershipToTeamMutation = api.organisation.assignUserToTeam.useMutation();
   const organisationContext = api.useUtils().organisation;
 
   const onClose = () => {
@@ -35,7 +35,7 @@ export const AddOrgTeamMemberDialog = (props: AddOrgTeamMemberDialogProps) => {
   };
 
   const handleAssignUserToATeam = (memberId: string) => {
-    assignOrganisationUserToTeamMutation.mutate({
+    assignMembershipToTeamMutation.mutate({
       teamId: props.teamId,
       organisationId: props.orgId,
       memberId
@@ -75,7 +75,7 @@ export const AddOrgTeamMemberDialog = (props: AddOrgTeamMemberDialogProps) => {
         }}
         id="org-team-users-dialog-title"
       >
-        Organisation Team Users
+        Organisation Team Members
         <IconButton
           aria-label="close"
           onClick={onClose}
@@ -93,11 +93,11 @@ export const AddOrgTeamMemberDialog = (props: AddOrgTeamMemberDialogProps) => {
           p: "1.25rem",
         }}
       >
-        {getAllOrganisationTeamUsersQuery.isLoading ? (
+        {getAllOrganisationMembershipsQuery.isLoading ? (
           <div>Loading...</div>
         ) : (
           <List>
-            {getAllOrganisationTeamUsersQuery.data?.map((user) => (
+            {getAllOrganisationMembershipsQuery.data?.map((user) => (
               <ListItem key={user.id}>
                 <ListItemText primary={user.name} secondary={user.email} />
                 <Button onClick={() => handleAssignUserToATeam(user.id)}>Assign</Button>

@@ -1,4 +1,4 @@
-import { organisationRepository, organisationResourceLimitsRepository, organisationTeamUserRepository, organisationUserRepository } from "../../organisation-management/repo";
+import { organisationRepository, organisationResourceLimitsRepository, organisationTeamMemberRepository, membershipRepository } from "../../organisation-management/repo";
 import { projectRepository } from "../../project-management/repo";
 import { userRepository } from "../repo";
 import { UserService } from "./user-service";
@@ -7,7 +7,7 @@ export const userService = new UserService(
   userRepository, 
   projectRepository, 
   organisationRepository, 
-  organisationUserRepository, 
+  membershipRepository, 
   organisationResourceLimitsRepository,
-  organisationTeamUserRepository
+  organisationTeamMemberRepository
 )

@@ -48,8 +48,9 @@ export const projectSchema = createTable('projects', {
   name: text('name').notNull(),
   /**@deprecated to be removed once all projects have an organisationId */
   userId: text('user_id').references(() => userSchema.id).notNull(),
-  // organisation_id: text('organisation_id').references(() => organisationSchema.id),
-  // organisation_team_id: text('organisation_team_id').references(() => organisationTeamsSchema.id),
+  /**@todo make it not null once all projects have an organisationId */
+  organisationId: text('organisation_id').references(() => organisationSchema.id),
+  organisationTeamId: text('organisation_team_id').references(() => organisationTeamsSchema.id),
   description: text('description').notNull(),
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -62,14 +63,14 @@ export const projectSchemaRelations = relations(projectSchema, ({ one }) => ({
     fields: [projectSchema.userId],
     references: [userSchema.id]
   }),
-  // organisation_id: one(organisationSchema, {
-  //   fields: [projectSchema.organisation_id],
-  //   references: [organisationSchema.id]
-  // }),
-  // organisation_team: one(organisationTeamsSchema, {
-  //   fields: [projectSchema.organisation_team_id],
-  //   references: [organisationTeamsSchema.id]
-  // })
+  organisation_id: one(organisationSchema, {
+    fields: [projectSchema.organisationId],
+    references: [organisationSchema.id]
+  }),
+  organisation_team: one(organisationTeamsSchema, {
+    fields: [projectSchema.organisationTeamId],
+    references: [organisationTeamsSchema.id]
+  })
 }))
 
 export const organisationSchema = createTable('organisations', {
@@ -88,7 +89,7 @@ export const organisationSchemaRelations = relations(organisationSchema, ({ many
   organisation_users: many(organisationUsersSchema),
   resource_limits: one(organisationResourceLimitsSchema),
   organisation_teams: many(organisationTeamsSchema),
-  // projects: many(projectSchema)
+  projects: many(projectSchema)
 }))
 
 export const organisationResourceLimitsSchema = createTable('organisation_resource_limits', {
@@ -142,7 +143,7 @@ export const organisationTeamsSchemaRelations = relations(organisationTeamsSchem
     references: [organisationSchema.id]
   }),
   organisation_team_users: many(organisationTeamUsersSchema),
-  // projects: many(projectSchema)
+  projects: many(projectSchema)
 }))
 
 export const organisationTeamUsersSchema = createTable('organisation_team_users', {

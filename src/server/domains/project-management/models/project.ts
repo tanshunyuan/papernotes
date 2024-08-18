@@ -11,13 +11,14 @@ interface ProjectProps {
    * @todo existing project will not have an organisationId, it needs to be migrated
    * @todo remove null once all projects have an organisationId
    */
-  // organisationId: string | null;
+  organisationId: string | null;
   /**@description a project CAN belong to a organisation team */
-  // organisationTeamId: string | null;
+  organisationTeamId: string | null;
   description: string;
   createdBy?: string
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
 }
 
 export class Project {

@@ -2,8 +2,10 @@ import { organisationSchema, organisationTeamsSchema, organisationTeamUsersSchem
 import { DbService } from '~/server/db';
 import { Project } from '../models/project';
 import { and, count, eq, isNull } from 'drizzle-orm';
+import { ProjectMapper } from '../mappers';
 
 export class ProjectRepository {
+  private readonly mapper = new ProjectMapper()
   constructor(private readonly dbService: DbService) { }
 
   public async save(entity: Project) {
@@ -39,16 +41,9 @@ export class ProjectRepository {
 
       if (!rawResults) return null
 
-      const project = new Project({
-        id: rawResults.id,
-        name: rawResults.name,
-        userId: rawResults.userId,
-        description: rawResults.description,
-        createdAt: rawResults.createdAt,
-        updatedAt: rawResults.updatedAt
-      })
+      const result = this.mapper.toDomain(rawResults)
 
-      return project
+      return result
     } catch (error) {
       throw new Error(`Error getting project by id: ${error}`)
     }
@@ -99,18 +94,10 @@ export class ProjectRepository {
 
       if (!rawResults || rawResults.length === 0) return []
 
-      const projects = rawResults.map(project => {
-        return new Project({
-          id: project.id,
-          name: project.name,
-          userId: project.userId,
-          description: project.description,
-          createdBy: project.users.email,
-          createdAt: project.createdAt,
-          updatedAt: project.updatedAt
-        })
+      const results = rawResults.map(project => {
+        return this.mapper.toDomain(project)
       })
-      return projects
+      return results
 
     } catch (error) {
       throw new Error(`Error getting projects by user id: ${error}`)
@@ -126,17 +113,10 @@ export class ProjectRepository {
 
       if (!rawResults || rawResults.length === 0) return []
 
-      const projects = rawResults.map(project => {
-        return new Project({
-          id: project.id,
-          name: project.name,
-          userId: project.userId,
-          description: project.description,
-          createdAt: project.createdAt,
-          updatedAt: project.updatedAt
-        })
+      const results = rawResults.map(project => {
+        return this.mapper.toDomain(project)
       })
-      return projects
+      return results
 
     } catch (error) {
       throw new Error(`Error getting all projects: ${error}`)
@@ -149,18 +129,23 @@ export class ProjectRepository {
       const rawResults = await this.dbService.getQueryClient().select().from(projectSchema)
         .leftJoin(organisationUsersSchema, eq(organisationUsersSchema.userId, projectSchema.userId))
         .leftJoin(userSchema, eq(userSchema.id, projectSchema.userId))
+        .leftJoin(organisationSchema, eq(organisationSchema.id, organisationUsersSchema.organisationId))
         .where(eq(organisationUsersSchema.organisationId, organisationId));
 
       if (!rawResults || rawResults.length === 0) return []
 
       const projects = rawResults.map(items => {
-        return new Project({
+        return this.mapper.toDomain({
           id: items.projects.id,
           name: items.projects.name,
           userId: items.projects.userId,
           description: items.projects.description,
           createdBy: items.users?.email,
-          createdAt: items.projects.createdAt
+          createdAt: items.projects.createdAt,
+          updatedAt: items.projects.updatedAt,
+          deletedAt: items.projects.deletedAt,
+          organisationId: items.organisations?.id!,
+          organisationTeamId: null
         })
       })
 
@@ -186,13 +171,17 @@ export class ProjectRepository {
       if (!rawResults || rawResults.length === 0) return []
 
       const results = rawResults.map(items => {
-        return new Project({
+        return this.mapper.toDomain({
           id: items.projects.id,
           name: items.projects.name,
           userId: items.projects.userId,
           description: items.projects.description,
           createdBy: items.users?.email,
-          createdAt: items.projects.createdAt
+          createdAt: items.projects.createdAt,
+          updatedAt: items.projects.updatedAt,
+          deletedAt: items.projects.deletedAt,
+          organisationId: items.organisations?.id!,
+          organisationTeamId: null
         })
       })
       return results

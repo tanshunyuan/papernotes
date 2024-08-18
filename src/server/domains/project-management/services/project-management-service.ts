@@ -23,10 +23,18 @@ export class ProjectManagementService {
     private readonly authService: AuthorisationService
   ) { }
 
-  public async createProject(userId: string, name: string, description: string) {
+  // public async createProject(userId: string, name: string, description: string) {
+  public async createProject(args: {
+    userId: string,
+    name: string,
+    description: string,
+    teamId: string | null
+  }) {
+    /**@warning it wont work if user has multiple membership to different organisations */
     try {
-      const userDetails = await this.userRepo.getUserByIdOrFail(userId)
-      const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(userId) ?? 0
+      const userDetails = await this.userRepo.getUserByIdOrFail(args.userId)
+      const userMembership = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(args.userId)
+      const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(args.userId) ?? 0
 
       console.log('ProjectManagementService.createProject', {
         projectCount
@@ -36,36 +44,46 @@ export class ProjectManagementService {
         if (projectCount >= ProjectResourceLimits.MAX_PROJECTS_PER_USER) {
           throw new Error('You have reached the maximum number of projects you can create')
         }
+        /**@todo figure out another way to handle this */
+        const project = new Project({
+          id: uuid(),
+          name: args.name,
+          userId: args.userId,
+          description: args.description,
+          organisationId: userMembership!.organisationId,
+          organisationTeamId: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null
+        })
+        console.log('ProjectManagementService.createProject.project', {
+          details: project.getValue()
+        })
+        await this.projectRepo.save(project)
       }
 
       if (userDetails.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
-        const organisationUserDetails = await this.organisationUserRepo.getOrganisationUserByUserIdOrFail(userDetails.getValue().id)
-        const organisationResourceLimits = await this.organisationResourceLimitsRepo.getResourceLimitsByOrganisationIdOrFail(organisationUserDetails.organisationId)
-
-        console.log('ProjectManagementService.if.enterprise', {
-          details: {
-            limits: organisationResourceLimits?.getValue(),
-          }
-        })
-
+        const organisationResourceLimits = await this.organisationResourceLimitsRepo.getResourceLimitsByOrganisationIdOrFail(userMembership.organisationId)
         if (projectCount >= organisationResourceLimits?.getValue().configuration.resources.project.limit) {
           throw new Error('You have reached the maximum number of projects you can create')
         }
+        const project = new Project({
+          id: uuid(),
+          name: args.name,
+          userId: args.userId,
+          description: args.description,
+          organisationId: userMembership!.organisationId,
+          organisationTeamId: args.teamId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null
+        })
+        console.log('ProjectManagementService.createProject.project', {
+          details: project.getValue()
+        })
+        await this.projectRepo.save(project)
       }
 
-      /**@todo figure out another way to handle this */
-      const project = new Project({
-        id: uuid(),
-        name,
-        userId: userId,
-        description,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      console.log('ProjectManagementService.createProject.project', {
-        details: project.getValue()
-      })
-      await this.projectRepo.save(project)
     } catch (error) {
       throw new Error(`Error creating project: ${error}`)
     }

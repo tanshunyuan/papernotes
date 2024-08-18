@@ -2,8 +2,8 @@ interface ProjectProps {
   id: string;
   name: string;
   /**
-   * @deprecated tie a project to an organisation instead 
    * @todo drop userId references only when all projects have an organisationId
+   * @deprecated tie a project to an organisation instead 
    */
   userId: string;
   /**

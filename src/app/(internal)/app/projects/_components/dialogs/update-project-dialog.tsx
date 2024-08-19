@@ -213,7 +213,7 @@ export const UpdateProjectDialog = (props: UpdateProjectDialogProps) => {
                 fontSize: "0.875rem",
                 paddingInline: "1.75rem",
               }}
-              disabled={!isValid || projectUpdateMutation.isPending || projectUpdateMutation.isSuccess || isSame}
+              disabled={!isValid || projectUpdateMutation.isPending || isSame}
               type="submit"
               color="primary"
               variant="contained"

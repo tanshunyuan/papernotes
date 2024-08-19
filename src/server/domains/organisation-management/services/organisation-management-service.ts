@@ -126,7 +126,7 @@ export class OrganisationManagementService {
         name: `${clerkUser.firstName} ${clerkUser.lastName}`,
         email: clerkUser.primaryEmailAddress?.emailAddress ?? '',
         /**@todo learn how to hide this in the class */
-        plan: USER_PLAN_ENUM.ENTERPRISE
+        userPlan: USER_PLAN_ENUM.ENTERPRISE
       })
 
       const membership = new Membership({
@@ -241,7 +241,6 @@ export class OrganisationManagementService {
         users: memberships,
         resourceLimits: organisationResourceLimits?.getValue() ?? null
       }
-      console.log(results)
 
       return results
     } catch (error) {

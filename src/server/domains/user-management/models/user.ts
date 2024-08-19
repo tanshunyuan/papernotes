@@ -12,7 +12,7 @@ interface UserProps {
   email: string
   name: string
   createdAt?: Date
-  plan: USER_PLAN_ENUM
+  userPlan: USER_PLAN_ENUM
 }
 
 export class User {

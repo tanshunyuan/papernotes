@@ -128,7 +128,7 @@ export default function CreateOrganisationPage() {
               fontSize: "0.875rem",
               paddingInline: "1.75rem",
             }}
-            disabled={organisationCreateMutation.isPending || organisationCreateMutation.isSuccess}
+            disabled={organisationCreateMutation.isPending }
             type="submit"
             color="primary"
             variant="contained"

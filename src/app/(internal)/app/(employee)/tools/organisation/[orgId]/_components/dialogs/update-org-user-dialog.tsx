@@ -143,7 +143,7 @@ export const UpdateOrgUserDialog = (props: UpdateOrgUserDialogProps) => {
             fontSize: "0.875rem",
             paddingInline: "1.75rem",
           }}
-          disabled={!isValid || updateMembershipRoleMutation.isPending || updateMembershipRoleMutation.isSuccess}
+          disabled={!isValid || updateMembershipRoleMutation.isPending}
           type="submit"
           color="primary"
           variant="contained"

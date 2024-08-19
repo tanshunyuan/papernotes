@@ -8,7 +8,13 @@ export class UserRepository {
 
   public async save(entity: User) {
     try {
-      await this.dbService.getQueryClient().insert(userSchema).values(entity.getValue())
+      await this.dbService.getQueryClient().insert(userSchema).values({
+        id: entity.getValue().id,
+        name: entity.getValue().name,
+        email: entity.getValue().email,
+        userPlan: entity.getValue().userPlan,
+        createdAt: entity.getValue().createdAt,
+      })
     } catch (error) {
       throw new Error(`Error saving user: ${error}`);
     }
@@ -28,7 +34,7 @@ export class UserRepository {
         email: rawResults.email,
         name: rawResults.name,
         createdAt: rawResults.createdAt,
-        plan: USER_PLAN_ENUM[rawResults.userPlan]
+        userPlan: USER_PLAN_ENUM[rawResults.userPlan]
       })
 
       return user;

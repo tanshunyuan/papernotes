@@ -63,7 +63,9 @@ export const AddOrgUserDialog = (props: AddOrgUserDialogProps) => {
             toast.error(error.message);
           },
           onSettled: () => {
-            organisationContext.getOrganisationDetails.invalidate()
+            organisationContext.getOrganisationDetails.invalidate({
+              organisationId: orgId
+            })
             onClose()
           }
         },
@@ -246,7 +248,7 @@ export const AddOrgUserDialog = (props: AddOrgUserDialogProps) => {
             fontSize: "0.875rem",
             paddingInline: "1.75rem",
           }}
-          disabled={!isValid || addUserToOrganisationMutation.isPending || addUserToOrganisationMutation.isSuccess}
+          disabled={!isValid || addUserToOrganisationMutation.isPending}
           type="submit"
           color="primary"
           variant="contained"

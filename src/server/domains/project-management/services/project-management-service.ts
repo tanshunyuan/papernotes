@@ -121,9 +121,8 @@ export class ProjectManagementService {
           // If you're part of a team retrieve all projects for that team
           // else retrieve all projects for that user
 
-
           const organisationTeamMember = await this.organisationTeamMemberRepo.getTeamMemberByMembershipIdOrNull({
-            MembershipId: userMembership.id
+            membershipId: userMembership.id
           })
 
           if (!organisationTeamMember) {

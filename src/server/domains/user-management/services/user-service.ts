@@ -35,7 +35,7 @@ export class UserService {
         email: clerkUser.primaryEmailAddress?.emailAddress ?? '',
         name: fullname,
         /**@todo learn how to hide this in the class */
-        plan: USER_PLAN_ENUM.FREE
+        userPlan: USER_PLAN_ENUM.FREE
       })
 
       const organisationId = uuid()
@@ -74,16 +74,16 @@ export class UserService {
   public async getUserDetails(userId: string) {
     const user = await this.userRepo.getUserByIdOrFail(userId)
 
-    if (user.getValue().plan === USER_PLAN_ENUM.FREE) {
+    if (user.getValue().userPlan === USER_PLAN_ENUM.FREE) {
       return {
         id: user.getValue().id,
         email: user.getValue().email,
         name: user.getValue().name,
-        plan: user.getValue().plan
+        plan: user.getValue().userPlan
       }
     }
 
-    if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
+    if (user.getValue().userPlan === USER_PLAN_ENUM.ENTERPRISE) {
       const membership = await this.membershipRepo.getMembershipByUserIdOrFail(userId)
       const organisation = await this.organisationRepo.getOrganisationByIdOrFail(membership.organisationId)
       const organisationTeamMemberInfo = await this.organisationTeamMemberRepo.getTeamMemberByMembershipIdOrNull({
@@ -94,7 +94,7 @@ export class UserService {
           id: user.getValue().id,
           email: user.getValue().email,
           name: user.getValue().name,
-          plan: user.getValue().plan,
+          plan: user.getValue().userPlan,
           organisation: {
             id: organisation.getValue().id,
             name: organisation.getValue().name,
@@ -110,7 +110,7 @@ export class UserService {
           id: user.getValue().id,
           email: user.getValue().email,
           name: user.getValue().name,
-          plan: user.getValue().plan,
+          plan: user.getValue().userPlan,
           organisation: {
             id: organisation.getValue().id,
             name: organisation.getValue().name,
@@ -127,7 +127,7 @@ export class UserService {
     try {
       const user = await this.userRepo.getUserByIdOrFail(userId)
 
-      if (user.getValue().plan === USER_PLAN_ENUM.FREE) {
+      if (user.getValue().userPlan === USER_PLAN_ENUM.FREE) {
         const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(userId) ?? 0
 
         return {
@@ -141,7 +141,7 @@ export class UserService {
         }
       }
 
-      if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
+      if (user.getValue().userPlan === USER_PLAN_ENUM.ENTERPRISE) {
         const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(userId) ?? 0
         const Membership = await this.membershipRepo.getMembershipByUserIdOrFail(userId)
         const organisationResourceLimits = await this.organisationResourceLimitsRepo.getResourceLimitsByOrganisationIdOrFail(Membership.organisationId)

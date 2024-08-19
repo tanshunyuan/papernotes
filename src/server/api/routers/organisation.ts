@@ -268,4 +268,25 @@ export const organisationRouter = createTRPCRouter({
     }
   }),
 
+  leaveOrganisationTeam: protectedProcedure.input(z.object({
+    teamId: z.string(),
+    orgId: z.string()
+  })).mutation(async ({ ctx, input }) => {
+    try {
+      const userId = ctx.auth.userId
+      await organisationTeamManagementService.leaveOrganisationTeam({
+        currentUserId: userId,
+        orgId: input.orgId,
+        orgTeamId: input.teamId
+      })
+    }
+    catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+    }
+  })
+
 })

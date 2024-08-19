@@ -1,6 +1,6 @@
 import { DbService } from '~/server/db';
 import { organisationTeamMembersSchema } from '~/server/db/schema';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { OrganisationTeamMember } from '../models/organisation-team-member';
 // how do i check if a user is part of a team? 
 
@@ -72,16 +72,16 @@ export class OrganisationTeamMemberRepository {
     }
   }
 
-  public async getTeamMemberByOrganisationTeamIdAndUserIdOrNull(args: {
+  public async getTeamMemberByOrganisationTeamIdAndMembershipIdOrNull(args: {
     organisationTeamId: string
-    MembershipId: string
+    membershipId: string
   }) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationTeamMembersSchema
         .findFirst({
           where: and(
             eq(organisationTeamMembersSchema.organisationTeamId, args.organisationTeamId),
-            eq(organisationTeamMembersSchema.membershipId, args.MembershipId)
+            eq(organisationTeamMembersSchema.membershipId, args.membershipId)
           )
         })
       if (!rawResults) return null
@@ -101,12 +101,12 @@ export class OrganisationTeamMemberRepository {
    * @todo account for leftAt when querying in the future
    */
   public async getTeamMemberByMembershipIdOrNull(args: {
-    MembershipId: string
+    membershipId: string
   }) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationTeamMembersSchema
         .findFirst({
-          where: eq(organisationTeamMembersSchema.membershipId, args.MembershipId),
+          where: and(eq(organisationTeamMembersSchema.membershipId, args.membershipId), isNull(organisationTeamMembersSchema.leftAt)),
           with: {
             organisation_team: {
               columns: {

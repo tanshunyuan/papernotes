@@ -84,12 +84,12 @@ export class UserService {
     }
 
     if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
-      const Membership = await this.membershipRepo.getMembershipByUserIdOrFail(userId)
-      const organisation = await this.organisationRepo.getOrganisationByIdOrFail(Membership.organisationId)
+      const membership = await this.membershipRepo.getMembershipByUserIdOrFail(userId)
+      const organisation = await this.organisationRepo.getOrganisationByIdOrFail(membership.organisationId)
       const organisationTeamMemberInfo = await this.organisationTeamMemberRepo.getTeamMemberByMembershipIdOrNull({
-        MembershipId: Membership.id,
+        membershipId: membership.id,
       })
-      if (Membership.role === MEMBERSHIP_ROLE_ENUM.ADMIN) {
+      if (membership.role === MEMBERSHIP_ROLE_ENUM.ADMIN) {
         return {
           id: user.getValue().id,
           email: user.getValue().email,
@@ -105,7 +105,7 @@ export class UserService {
         }
       }
 
-      if (Membership.role === MEMBERSHIP_ROLE_ENUM.MEMBER) {
+      if (membership.role === MEMBERSHIP_ROLE_ENUM.MEMBER) {
         return {
           id: user.getValue().id,
           email: user.getValue().email,

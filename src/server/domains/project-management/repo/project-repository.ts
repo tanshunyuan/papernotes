@@ -220,7 +220,7 @@ export class ProjectRepository {
           createdAt: items.projects.createdAt,
           updatedAt: items.projects.updatedAt,
           deletedAt: items.projects.deletedAt,
-          organisationId: items.organisations?.id!,
+          organisationId: items.organisations?.id,
           organisationTeamId: null
         })
       })

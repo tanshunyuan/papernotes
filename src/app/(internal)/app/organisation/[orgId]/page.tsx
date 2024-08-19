@@ -2,10 +2,12 @@
 
 import { Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { ORGANISATION_TEAM_PERMISSIONS } from "~/server/domains/authorisation/utils/permissions"
 import { api } from "~/trpc/react"
 import { RouterOutputs } from "~/trpc/shared"
 import { ROUTE_PATHS } from "~/utils/route-paths"
+import { MemberLeaveTeamDialog } from "./_components/dialogs/member-leave-team-dialog"
 
 type OrganisationPageProps = {
   params: {
@@ -128,10 +130,12 @@ const AdminOrganisationTeamInfo = (props: {
   </>
 }
 
+/**@description meant to show the team details to a member of the organisation */
 const MemberOrganisationTeamInfo = (props: {
   orgId: string
   userDetails: NonNullable<RouterOutputs['user']['getUserDetails']>
 }) => {
+  const [openLeaveOrganisationTeamDialog, setOpenLeaveOrganisationTeamDialog] = useState(false)
   const isQueryEnabled = !!props.userDetails?.organisation?.teamId && props.userDetails.permissions.includes('organisation-team:read')
   const getAOrganisationTeamDetailQuery = api.organisation.getAOrganisationTeam.useQuery({
     organisationId: props.orgId,
@@ -144,13 +148,23 @@ const MemberOrganisationTeamInfo = (props: {
   }
 
   if (getAOrganisationTeamDetailQuery.isLoading) return <Typography>Loading...</Typography>
+  if (!getAOrganisationTeamDetailQuery.data || !props.userDetails.organisation?.teamId) return null
   return <>
+    {openLeaveOrganisationTeamDialog &&
+      <MemberLeaveTeamDialog
+        orgId={props.orgId}
+        open={openLeaveOrganisationTeamDialog}
+        setOpen={setOpenLeaveOrganisationTeamDialog}
+        teamId={props.userDetails.organisation.teamId}
+      />
+    }
     <Box sx={{
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center'
     }}>
       <Typography variant="h5" sx={{ mb: '0.5rem' }}>Team Details</Typography>
+      <Button variant="contained" color="error" onClick={() => setOpenLeaveOrganisationTeamDialog(true)}>Leave Team</Button>
     </Box>
     <Box>
       <Typography variant="body1">Team Name: {getAOrganisationTeamDetailQuery.data.orgTeam.name}</Typography>

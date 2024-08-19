@@ -28,6 +28,7 @@ export const createTable = pgTableCreator((name) => `papernotes_${name}`);
 
 export const pgRolesEnum = pgEnum('roles_enum', ['ADMIN', 'MEMBER'])
 export const pgUserPlanEnum = pgEnum('user_plan_enum', ['FREE', 'ENTERPRISE'])
+export const pgOrganisationTypeEnum = pgEnum('organisation_type_enum', ['PERSONAL', 'COMPANY'])
 
 export const userSchema = createTable(
   'users',
@@ -82,6 +83,7 @@ export const organisationSchema = createTable('organisations', {
   plan_duration_start: timestamp('plan_duration_start').notNull(),
   plan_duration_end: timestamp('plan_duration_end').notNull(),
   max_seats: integer('max_seats').notNull(),
+  type: pgOrganisationTypeEnum('organisation_type'),
   createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   deletedAt: timestamp('deleted_at')

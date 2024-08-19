@@ -9,7 +9,7 @@ import { type OrganisationRepository } from "../../organisation-management/repo/
 import { type OrganisationTeamMemberRepository } from '../../organisation-management/repo/organisation-team-member-repository';
 import { MEMBERSHIP_ROLE_ENUM, Membership } from "../../organisation-management/models/membership";
 import { PLAN_BASED_ROLE_PERMISSION } from "../../authorisation/utils/permissions";
-import { Organisation } from "../../organisation-management/models/organisation";
+import { Organisation, ORGANISATION_TYPE_ENUM } from "../../organisation-management/models/organisation";
 import { uuid } from "uuidv4";
 
 export class UserService {
@@ -49,6 +49,7 @@ export class UserService {
         planDurationStart: new Date(),
         planDurationEnd: new Date(new Date().setFullYear(new Date().getFullYear() + 90)),
         updatedAt: new Date(),
+        type: ORGANISATION_TYPE_ENUM.PERSONAL
       })
 
       const userMembership = new Membership({

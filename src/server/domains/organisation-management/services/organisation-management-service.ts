@@ -1,5 +1,5 @@
 import { uuid } from "uuidv4";
-import { Organisation } from "../models/organisation";
+import { Organisation, ORGANISATION_TYPE_ENUM } from "../models/organisation";
 import { OrganisationRepository } from "../repo/organisation-repository";
 import { MembershipRepository } from "../repo/membership-repository";
 import { MEMBERSHIP_ROLE_ENUM, Membership } from "../models/membership";
@@ -8,21 +8,6 @@ import { User, USER_PLAN_ENUM } from "../../user-management/models/user";
 import { UserRepository } from "../../user-management/repo/user-repository";
 import { OrganisationResourceLimitsRepository } from '../repo/organisation-resource-limits-repository';
 import { OrganisationResourceLimits } from "../models/organisation-resource-limits";
-
-interface CreateOrganisationArgs {
-  /**@description authenticated user id */
-  currentUserId: string;
-  name: string;
-  description: string;
-  planDurationStart: Date;
-  planDurationEnd: Date;
-  maxSeats: number;
-  resourceLimits: {
-    projectLimit: number;
-    projectResetDuration: number;
-    featureLimit: number;
-  }
-}
 
 interface AddAUserToOrganisationArgs {
   organisationId: string;
@@ -59,8 +44,24 @@ export class OrganisationManagementService {
     private readonly organisationResourceLimitsRepository: OrganisationResourceLimitsRepository
   ) { }
 
-  /**@todo need to add fn to add in resource limits & number of seats */
-  public async createOrganisation(args: CreateOrganisationArgs) {
+  /**
+   * @todo need to add fn to add in resource limits & number of seats 
+   * @description create an org by employees
+   */
+  public async createOrganisation(args: {
+    /**@description authenticated user id */
+    currentUserId: string;
+    name: string;
+    description: string;
+    planDurationStart: Date;
+    planDurationEnd: Date;
+    maxSeats: number;
+    resourceLimits: {
+      projectLimit: number;
+      projectResetDuration: number;
+      featureLimit: number;
+    }
+  }) {
     try {
       const currentUser = await this.userRepository.getUserByIdOrFail(args.currentUserId);
       if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
@@ -73,7 +74,8 @@ export class OrganisationManagementService {
         planDurationEnd: args.planDurationEnd,
         maxSeats: args.maxSeats,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        type: ORGANISATION_TYPE_ENUM.COMPANY
       })
 
       const organisationResourceLimits = new OrganisationResourceLimits({

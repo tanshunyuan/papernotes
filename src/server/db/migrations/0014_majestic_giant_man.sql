@@ -1,0 +1,1 @@
+ALTER TABLE "papernotes_memberships" ADD COLUMN "is_current" boolean DEFAULT false NOT NULL;

@@ -14,6 +14,8 @@ import {
   timestamp,
   uuid,
   varchar,
+  boolean,
+  unique
 } from "drizzle-orm/pg-core";
 
 /**
@@ -112,6 +114,8 @@ export const membershipsSchema = createTable('memberships', {
   organisationId: text('organisation_id').references(() => organisationSchema.id).notNull(),
   userId: text('user_id').references(() => userSchema.id).notNull(),
   role: pgRolesEnum('role').notNull(),
+  /**@description marks the current organisation the user is on */
+  isCurrent: boolean('is_current').notNull().default(false),
   createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
 })

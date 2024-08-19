@@ -12,6 +12,8 @@ interface MembershipProps {
   organisationId: Organisation['props']['id'];
   userId: User['props']['id'];
   role: MEMBERSHIP_ROLE_ENUM;
+  /**@description marks the current organisation the user is on */
+  isCurrent: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

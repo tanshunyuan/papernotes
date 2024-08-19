@@ -134,7 +134,8 @@ export class OrganisationManagementService {
         createdAt: new Date(),
         updatedAt: new Date(),
         /**@todo to change this into dynamic */
-        role: MEMBERSHIP_ROLE_ENUM.MEMBER
+        role: MEMBERSHIP_ROLE_ENUM.MEMBER,
+        isCurrent: true
       })
 
       await this.userRepository.save(user)

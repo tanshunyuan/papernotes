@@ -7,6 +7,10 @@ export class MembershipRepository {
 
   constructor(private readonly dbService: DbService) { }
 
+  /**
+   * @todo need to check if there are other isCurrent that are true, if so set them to false
+   * and only allow the incoming one to be true
+   */
   public async save(entity: Membership) {
     try {
       const repoValue = entity.getValue();
@@ -36,7 +40,8 @@ export class MembershipRepository {
             userId: membership.userId,
             role: MEMBERSHIP_ROLE_ENUM[membership.role],
             createdAt: membership.createdAt,
-            updatedAt: membership.updatedAt
+            updatedAt: membership.updatedAt,
+            isCurrent: membership.isCurrent
           }).getValue(), email: membership.user.email, name: membership.user.name
         }
       })
@@ -60,7 +65,8 @@ export class MembershipRepository {
         userId: rawResults.userId,
         role: MEMBERSHIP_ROLE_ENUM[rawResults.role],
         createdAt: rawResults.createdAt,
-        updatedAt: rawResults.updatedAt
+        updatedAt: rawResults.updatedAt,
+        isCurrent: rawResults.isCurrent
       })
       return result
     }
@@ -97,7 +103,8 @@ export class MembershipRepository {
           userId: rawResults.userId,
           role: MEMBERSHIP_ROLE_ENUM[rawResults.role],
           createdAt: rawResults.createdAt,
-          updatedAt: rawResults.updatedAt
+          updatedAt: rawResults.updatedAt,
+          isCurrent: rawResults.isCurrent
         }).getValue(),
         organisationTeamIds: rawResults.organisation_team_members.map(teamMember => teamMember.organisationTeamId)
       }

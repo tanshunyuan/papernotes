@@ -58,6 +58,7 @@ export class UserService {
         role: MEMBERSHIP_ROLE_ENUM.ADMIN,
         createdAt: new Date(),
         updatedAt: new Date(),
+        isCurrent: true
       })
 
       await this.userRepo.save(user)

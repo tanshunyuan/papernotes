@@ -1,6 +1,6 @@
 import { DbService } from "~/server/db";
 import { MEMBERSHIP_ROLE_ENUM, Membership } from "../models/membership";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { membershipsSchema } from "~/server/db/schema";
 
 export class MembershipRepository {
@@ -84,7 +84,7 @@ export class MembershipRepository {
   public async getMembershipByUserIdOrNull(userId: string) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.membershipsSchema.findFirst({
-        where: eq(membershipsSchema.userId, userId),
+        where: and(eq(membershipsSchema.userId, userId), eq(membershipsSchema.isCurrent, true)),
         with: {
           organisation_team_members: {
             columns: {

@@ -40,7 +40,7 @@ export class OrganisationManagementService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly organisationRepository: OrganisationRepository,
-    private readonly MembershipRepository: MembershipRepository,
+    private readonly membershipRepository: MembershipRepository,
     private readonly organisationResourceLimitsRepository: OrganisationResourceLimitsRepository
   ) { }
 
@@ -141,7 +141,7 @@ export class OrganisationManagementService {
       })
 
       await this.userRepository.save(user)
-      await this.MembershipRepository.save(membership)
+      await this.membershipRepository.save(membership)
 
     } catch (error) {
       throw new Error(`Error creating organisation user: ${error}`)
@@ -155,12 +155,12 @@ export class OrganisationManagementService {
       const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
       if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
 
-      const membership = await this.MembershipRepository.getMembershipByIdOrFail(MembershipId)
+      const membership = await this.membershipRepository.getMembershipByIdOrFail(MembershipId)
       const updatedMembership = new Membership({
         ...membership.getValue(),
         role,
       })
-      await this.MembershipRepository.updateMembershipRole(updatedMembership)
+      await this.membershipRepository.updateMembershipRole(updatedMembership)
     } catch (error) {
       throw new Error(`Error updating organisation user role: ${error}`)
     }
@@ -228,17 +228,17 @@ export class OrganisationManagementService {
   public async getOrganisationDetails(organisationId: string, currentUserId: string) {
     try {
       const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
-      const Membership = await this.MembershipRepository.getMembershipByUserIdOrNull(currentUserId)
+      const membership = await this.membershipRepository.getMembershipByUserIdOrNull(currentUserId)
 
-      if (!currentUser.isEmployee() && !Membership) throw new Error('You do not have permission to perform this operation')
+      if (!currentUser.isEmployee() && !membership) throw new Error('You do not have permission to perform this operation')
 
       const organisation = await this.organisationRepository.getOrganisationByIdOrFail(organisationId)
-      const Memberships = await this.MembershipRepository.getAllMemberships(organisationId)
+      const memberships = await this.membershipRepository.getAllMemberships(organisationId)
       const organisationResourceLimits = await this.organisationResourceLimitsRepository.getResourceLimitsByOrganisationIdOrNull(organisationId)
 
       const results = {
         organisation: organisation.getValue(),
-        users: Memberships,
+        users: memberships,
         resourceLimits: organisationResourceLimits?.getValue() ?? null
       }
       console.log(results)
@@ -255,7 +255,7 @@ export class OrganisationManagementService {
       const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
       if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
 
-      const organisations = await this.organisationRepository.getAllOrganisations()
+      const organisations = await this.organisationRepository.getAllOrganisations({ organisationType: ORGANISATION_TYPE_ENUM.COMPANY })
       return organisations.map(organisation => organisation.getValue())
     } catch (error) {
       throw new Error(`Error getting all organisations: ${error}`)

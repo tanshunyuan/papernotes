@@ -1,5 +1,5 @@
 import { DbService } from '~/server/db';
-import { Organisation } from './../models/organisation';
+import { Organisation, ORGANISATION_TYPE_ENUM } from './../models/organisation';
 import { organisationSchema } from '~/server/db/schema';
 import { and, count, eq, isNull } from 'drizzle-orm';
 import { OrganisationMapper } from '../mappers';
@@ -27,11 +27,11 @@ export class OrganisationRepository {
     }
   }
 
-  public async getAllOrganisations() {
+  public async getAllOrganisations(args: { organisationType: ORGANISATION_TYPE_ENUM}) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationSchema
         .findMany({
-          where: isNull(organisationSchema.deletedAt),
+          where: and(isNull(organisationSchema.deletedAt), eq(organisationSchema.type, args.organisationType)),
         })
       if (!rawResults || rawResults.length === 0) return []
       const results = rawResults.map(organisation => this.mapper.toDomain(organisation))

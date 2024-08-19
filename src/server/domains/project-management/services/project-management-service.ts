@@ -17,7 +17,7 @@ export class ProjectManagementService {
   constructor(
     private readonly projectRepo: ProjectRepository,
     private readonly userRepo: UserRepository,
-    private readonly MembershipRepo: MembershipRepository,
+    private readonly membershipRepo: MembershipRepository,
     private readonly organisationResourceLimitsRepo: OrganisationResourceLimitsRepository,
     private readonly organisationTeamMemberRepo: OrganisationTeamMemberRepository,
     private readonly authService: AuthorisationService
@@ -30,10 +30,9 @@ export class ProjectManagementService {
     description: string,
     teamId: string | null
   }) {
-    /**@warning it wont work if user has multiple membership to different organisations */
     try {
       const userDetails = await this.userRepo.getUserByIdOrFail(args.userId)
-      const userMembership = await this.MembershipRepo.getMembershipByUserIdOrFail(args.userId)
+      const userMembership = await this.membershipRepo.getMembershipByUserIdOrFail(args.userId)
       const projectCount = await this.projectRepo.getProjectCountOrNullByUserId(args.userId) ?? 0
 
       console.log('ProjectManagementService.createProject', {
@@ -50,7 +49,7 @@ export class ProjectManagementService {
           name: args.name,
           userId: args.userId,
           description: args.description,
-          organisationId: userMembership!.organisationId,
+          organisationId: userMembership.organisationId,
           organisationTeamId: null,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -72,7 +71,7 @@ export class ProjectManagementService {
           name: args.name,
           userId: args.userId,
           description: args.description,
-          organisationId: userMembership!.organisationId,
+          organisationId: userMembership.organisationId,
           organisationTeamId: args.teamId,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -94,7 +93,7 @@ export class ProjectManagementService {
     try {
 
       const user = await this.userRepo.getUserByIdOrFail(args.userId)
-      const userMembership = await this.MembershipRepo.getMembershipByUserIdOrFail(args.userId)
+      const userMembership = await this.membershipRepo.getMembershipByUserIdOrFail(args.userId)
 
       if (user.getValue().plan === USER_PLAN_ENUM.FREE) {
         const projects = (await this.projectRepo.getProjectsByOrganisationIdAndUserId({

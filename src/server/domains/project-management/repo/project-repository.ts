@@ -105,7 +105,6 @@ export class ProjectRepository {
     }
   }
 
-  /**@warning might be the same as  */
   public async getProjectsByOrganisationIdAndUserId(args: { orgId: string, userId: string }) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.projectSchema

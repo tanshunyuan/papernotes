@@ -21,11 +21,7 @@ type OrganisationTeamDetailsPageProps = {
 }
 
 /**
- * @todo 
- * 1. Implement add oragnisation user to a team
- * 2. Once a user is added to a team prevent them from being added to another team
- * 3. Fetch current org users
- * 4. Fetch all org users for a team
+ * @todo Once a user is added to a team prevent them from being added to another team
  */
 export default function OrganisationTeamDetailsPage(props: OrganisationTeamDetailsPageProps) {
   const [openAddOrgTeamMemberDialog, setOpenAddOrgTeamMemberDialog] = useState(false)

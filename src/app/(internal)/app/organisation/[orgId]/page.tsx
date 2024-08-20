@@ -14,10 +14,7 @@ type OrganisationPageProps = {
     orgId: string
   }
 }
-/**@todo only accessible by people with enterprise plan and they've a organisation */
 export default function OrganisationPage(props: OrganisationPageProps) {
-  const router = useRouter()
-
   const getUserDetailsQuery = api.user.getUserDetails.useQuery()
   const getOrganisationDetailsQuery = api.organisation.getOrganisationDetails.useQuery({
     organisationId: props.params.orgId
@@ -71,6 +68,7 @@ export default function OrganisationPage(props: OrganisationPageProps) {
       </TableContainer>
     </Box>
 
+    {/**@todo Check the user role instead of permission, both of them can read. But it's based on their role, what KIND of information they can read */}
     <Box>
       {getUserDetailsQuery.data.permissions === PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN &&
         PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN.includes('organisation-team:read_all') ?

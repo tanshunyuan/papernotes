@@ -24,6 +24,7 @@ const upsertOrganisationResourceLimitsValidator = z.object({
   featureLimit: z.number()
 })
 
+/**@todo split up organisation router VS member router */
 export const organisationRouter = createTRPCRouter({
   createOrganisation: protectedProcedure.input(createOrganisationValidator).mutation(async ({ ctx, input }) => {
     try {
@@ -207,7 +208,7 @@ export const organisationRouter = createTRPCRouter({
     teamId: z.string()
   })).query(async ({ ctx, input }) => {
     try {
-      if(!input.teamId) {
+      if (!input.teamId) {
         throw new Error('Member is not in a team')
       }
       const userId = ctx.auth.userId
@@ -232,7 +233,7 @@ export const organisationRouter = createTRPCRouter({
   })).query(async ({ ctx, input }) => {
     try {
       const userId = ctx.auth.userId
-      const teamMembers = await organisationTeamManagementService.getAllOrganisationMemberships({
+      const teamMembers = await organisationTeamManagementService.getAllIndividualOrganisationMembers({
         currentUserId: userId,
         orgId: input.organisationId,
         teamId: input.teamId
@@ -289,6 +290,28 @@ export const organisationRouter = createTRPCRouter({
         message: error.message
       })
     }
-  })
+  }),
 
+  removeOrganisationTeamMember: protectedProcedure.input(z.object({
+    memberId: z.string(),
+    orgTeamId: z.string(),
+  })).mutation(async ({ ctx, input }) => {
+    try {
+      const userId = ctx.auth.userId
+
+      await organisationTeamManagementService.removeMemberFromOrganisationTeam({
+        currentUserId: userId,
+        orgTeamId: input.orgTeamId,
+        orgTeamMemberId: input.memberId
+      })
+
+    } catch (e) {
+      const error = e as Error
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message
+      })
+
+    }
+  })
 })

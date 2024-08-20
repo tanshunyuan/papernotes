@@ -64,4 +64,5 @@ export class OrganisationRepository {
       throw new Error(`Error getting organisation by name: ${error}`)
     }
   }
+
 }

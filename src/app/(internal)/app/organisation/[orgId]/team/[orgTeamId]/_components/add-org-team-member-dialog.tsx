@@ -9,7 +9,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import { api } from "~/trpc/react";
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import toast from "react-hot-toast";
 
 type AddOrgTeamMemberDialogProps = {
@@ -47,6 +47,7 @@ export const AddOrgTeamMemberDialog = (props: AddOrgTeamMemberDialogProps) => {
       },
       onSettled() {
         organisationContext.getAOrganisationTeam.invalidate();
+        organisationContext.getAllOrganisationMemberships.invalidate()
         onClose()
       },
     })
@@ -94,7 +95,7 @@ export const AddOrgTeamMemberDialog = (props: AddOrgTeamMemberDialogProps) => {
         }}
       >
         {getAllOrganisationMembershipsQuery.isLoading ? (
-          <div>Loading...</div>
+          <Box>Loading...</Box>
         ) : (
           <List>
             {getAllOrganisationMembershipsQuery.data?.map((user) => (

@@ -33,7 +33,7 @@ export class OrganisationTeamMemberRepository {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationTeamMembersSchema
         .findMany({
-          where: eq(organisationTeamMembersSchema.organisationTeamId, organisationTeamId),
+          where: and(eq(organisationTeamMembersSchema.organisationTeamId, organisationTeamId), isNull(organisationTeamMembersSchema.leftAt)),
           with: {
             members: {
               columns: {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { Box, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import { isEmpty } from "lodash";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,6 +11,7 @@ import { AddOrgTeamMemberDialog } from "./_components/add-org-team-member-dialog
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import CloseIcon from '@mui/icons-material/Close';
 import { RouterOutputs } from "~/trpc/shared";
 
 type OrganisationTeamDetailsPageProps = {
@@ -24,12 +25,37 @@ type OrganisationTeamDetailsPageProps = {
  * @todo Once a user is added to a team prevent them from being added to another team
  */
 export default function OrganisationTeamDetailsPage(props: OrganisationTeamDetailsPageProps) {
+  const router = useRouter()
   const [openAddOrgTeamMemberDialog, setOpenAddOrgTeamMemberDialog] = useState(false)
   const organisationTeamDetailsQuery = api.organisation.getAOrganisationTeam.useQuery({
     organisationId: props.params.orgId,
     teamId: props.params.orgTeamId
   })
-  const router = useRouter()
+
+  const removeOrganisationTeamMemberMutation = api.organisation.removeOrganisationTeamMember.useMutation()
+  const organisationContext = api.useUtils().organisation
+
+  const handleRemoveTeamMember = (args: { memberId: string, teamId: string }) => {
+    // to be implemented
+    removeOrganisationTeamMemberMutation.mutate({
+      memberId: args.memberId,
+      orgTeamId: args.teamId
+    }, {
+      onSuccess: () => {
+        toast.success("Member removed successfully")
+      },
+      onError: (data) => {
+        toast.error(`Error removing member: ${data.message}`)
+      },
+      onSettled: () => {
+        organisationContext.getAllOrganisationMemberships.invalidate({
+          organisationId: props.params.orgId,
+          teamId: props.params.orgTeamId
+        })
+        organisationTeamDetailsQuery.refetch()
+      }
+    })
+  }
 
   if (organisationTeamDetailsQuery.isLoading) return <Typography>Loading...</Typography>
   if (organisationTeamDetailsQuery.isError) {
@@ -79,6 +105,7 @@ export default function OrganisationTeamDetailsPage(props: OrganisationTeamDetai
                 <TableCell>Name</TableCell>
                 <TableCell>Email</TableCell>
                 <TableCell>Joined At</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -92,6 +119,11 @@ export default function OrganisationTeamDetailsPage(props: OrganisationTeamDetai
                   </TableCell>
                   <TableCell>{row.email}</TableCell>
                   <TableCell>{row.joinedAt.toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <IconButton aria-label="delete" onClick={() => handleRemoveTeamMember({ memberId: row.membershipId, teamId: props.params.orgTeamId })}>
+                      <CloseIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

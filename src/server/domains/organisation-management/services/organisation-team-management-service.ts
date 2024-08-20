@@ -104,8 +104,8 @@ export class OrganisationTeamManagementService {
     }
   }
 
-  /**@todo update query or filter to show that member is assigned alrdy so that unassignment is possible */
-  public async getAllOrganisationMemberships(args: {
+  /**@description retrieves individual members who is not part of a team */
+  public async getAllIndividualOrganisationMembers(args: {
     orgId: string,
     teamId: string,
     currentUserId: string
@@ -114,11 +114,21 @@ export class OrganisationTeamManagementService {
       const membership = await this.membershipRepo.getMembershipByUserIdOrFail(args.currentUserId)
       if (membership.role !== MEMBERSHIP_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
 
-      const orgUsers = (await this.membershipRepo.getAllMemberships(args.orgId)).filter(user => user.role === MEMBERSHIP_ROLE_ENUM.MEMBER)
-      return orgUsers
+      const allOrgMembers = (await this.membershipRepo.getAllMemberships(args.orgId)).filter(user => user.role === MEMBERSHIP_ROLE_ENUM.MEMBER)
+      const allOrgMembersInATeam = await this.organisationTeamMemberRepository.getTeamMembersByOrganisationTeamId(args.teamId)
 
+      const allOrgMembersNotInATeam = allOrgMembers.filter(member =>
+        member.role === MEMBERSHIP_ROLE_ENUM.MEMBER &&
+        !allOrgMembersInATeam.some(teamMember => teamMember.membershipId === member.id)
+      );
+
+      console.log({
+        allOrgMembersNotInATeam
+      })
+
+      return allOrgMembersNotInATeam
     } catch (error) {
-      throw new Error(`Error getting organisation team members: ${error}`)
+      throw new Error(`Error getting all individual organisation members: ${error}`)
     }
   }
 
@@ -165,6 +175,33 @@ export class OrganisationTeamManagementService {
 
     } catch (error) {
       throw new Error(`Error leaving organisation team: ${error}`)
+    }
+  }
+
+  public async removeMemberFromOrganisationTeam(args: {
+    orgTeamId: string
+    orgTeamMemberId: string
+    currentUserId: string
+  }) {
+    try {
+      const membership = await this.membershipRepo.getMembershipByUserIdOrFail(args.currentUserId)
+      if (membership.role !== MEMBERSHIP_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
+
+      const orgTeamMember = await this.organisationTeamMemberRepository.getTeamMemberByOrganisationTeamIdAndMembershipIdOrNull({
+        organisationTeamId: args.orgTeamId,
+        membershipId: args.orgTeamMemberId
+      })
+
+      if (!orgTeamMember) throw new Error('User does not belong to any team')
+
+      const updatedOrgTeamMember = new OrganisationTeamMember({
+        ...orgTeamMember.getValue(),
+        leftAt: new Date()
+      })
+      await this.organisationTeamMemberRepository.update(updatedOrgTeamMember)
+
+    } catch (error) {
+      throw new Error(`Error removing member from organisation team: ${error}`)
     }
   }
 }

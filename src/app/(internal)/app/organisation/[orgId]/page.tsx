@@ -8,6 +8,7 @@ import { api } from "~/trpc/react"
 import { RouterOutputs } from "~/trpc/shared"
 import { ROUTE_PATHS } from "~/utils/route-paths"
 import { MemberLeaveTeamDialog } from "./_components/dialogs/member-leave-team-dialog"
+import { MEMBERSHIP_ROLE_ENUM } from "~/server/domains/organisation-management/models/membership"
 
 type OrganisationPageProps = {
   params: {
@@ -70,20 +71,18 @@ export default function OrganisationPage(props: OrganisationPageProps) {
 
     {/**@todo Check the user role instead of permission, both of them can read. But it's based on their role, what KIND of information they can read */}
     <Box>
-      {getUserDetailsQuery.data.permissions === PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN &&
-        PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN.includes('organisation-team:read_all') ?
+      {getUserDetailsQuery.data.role === MEMBERSHIP_ROLE_ENUM.ADMIN ?
         <AdminOrganisationTeamInfo
           orgId={props.params.orgId}
           userDetails={getUserDetailsQuery.data}
-        /> : null
-      }
-      {getUserDetailsQuery.data.permissions === PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER &&
-        getUserDetailsQuery.data.permissions?.includes('organisation-team:read') ?
+        />
+        : null}
+      {getUserDetailsQuery.data.role === MEMBERSHIP_ROLE_ENUM.MEMBER ?
         <MemberOrganisationTeamInfo
           orgId={props.params.orgId}
           userDetails={getUserDetailsQuery.data}
-        /> : null
-      }
+        />
+        : null}
     </Box>
   </Box>
 }
@@ -135,7 +134,7 @@ const MemberOrganisationTeamInfo = (props: {
   userDetails: NonNullable<RouterOutputs['user']['getUserDetails']>
 }) => {
   const [openLeaveOrganisationTeamDialog, setOpenLeaveOrganisationTeamDialog] = useState(false)
-  const isQueryEnabled = !!props.userDetails?.organisation?.teamId && props.userDetails.permissions === PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER && props.userDetails.permissions.includes('organisation-team:read')
+  const isQueryEnabled = !!props.userDetails?.organisation?.teamId 
   const getAOrganisationTeamDetailQuery = api.organisation.getAOrganisationTeam.useQuery({
     organisationId: props.orgId,
     teamId: props.userDetails.organisation?.teamId ?? ''

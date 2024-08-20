@@ -101,6 +101,7 @@ export class UserService {
             teamName: organisationTeamMemberInfo?.teamName ?? null,
             teamId: organisationTeamMemberInfo?.organisationTeamId ?? null,
           },
+          role: membership.role,
           permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN
         }
       }
@@ -117,6 +118,7 @@ export class UserService {
             teamName: organisationTeamMemberInfo?.teamName ?? null,
             teamId: organisationTeamMemberInfo?.organisationTeamId ?? null,
           },
+          role: membership.role,
           permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER
         }
       }

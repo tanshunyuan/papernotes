@@ -18,7 +18,9 @@ export const userRouter = createTRPCRouter({
   getUserDetails: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.auth.userId
     try {
-      return await userService.getUserDetails(userId)
+      const result = await userService.getUserDetails(userId)
+      console.log('getUserDetails.result', result)
+      return result
     } catch (error) {
       const errorMessage = error as Error
       throw new TRPCClientError(errorMessage.message)

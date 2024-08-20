@@ -2,7 +2,6 @@ import { pgUserPlanEnum } from './../../../db/schema';
 export const PROJECT_PERIMSSIONS = {
   CREATE: 'project:create',
   READ: 'project:read',
-  READ_ALL: 'project:read_all',
   UPDATE: 'project:update',
   DELETE: 'project:delete',
 } as const
@@ -10,7 +9,6 @@ export const PROJECT_PERIMSSIONS = {
 export const ORGANISATION_TEAM_PERMISSIONS = {
   CREATE: 'organisation-team:create',
   READ: 'organisation-team:read',
-  READ_ALL: 'organisation-team:read_all',
   UPDATE: 'organisation-team:update',
   DELETE: 'organisation-team:delete',
 } as const
@@ -20,7 +18,6 @@ export const ORGANISATION_TEAM_PERMISSIONS = {
 //   ADMIN: [
 //     ORGANISATION_TEAM_PERMISSIONS.CREATE,
 //     ORGANISATION_TEAM_PERMISSIONS.READ,
-//     ORGANISATION_TEAM_PERMISSIONS.READ_ALL,
 //     ORGANISATION_TEAM_PERMISSIONS.DELETE,
 //   ],
 //   MEMBER: [
@@ -39,12 +36,10 @@ export const PLAN_BASED_ROLE_PERMISSION = {
     ADMIN: [
       PROJECT_PERIMSSIONS.CREATE,
       PROJECT_PERIMSSIONS.READ,
-      PROJECT_PERIMSSIONS.READ_ALL,
       PROJECT_PERIMSSIONS.UPDATE,
       PROJECT_PERIMSSIONS.DELETE,
       ORGANISATION_TEAM_PERMISSIONS.CREATE,
-      // ORGANISATION_TEAM_PERMISSIONS.READ, /**@todo re-enable later */
-      ORGANISATION_TEAM_PERMISSIONS.READ_ALL,
+      ORGANISATION_TEAM_PERMISSIONS.READ,
       ORGANISATION_TEAM_PERMISSIONS.UPDATE
     ],
     MEMBER: [

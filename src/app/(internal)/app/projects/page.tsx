@@ -13,6 +13,11 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "~/utils/route-paths";
 
+/**
+ * 
+ * @todo fix org team not assigned to project creation
+ * @todo fix query to exclude project with team id
+ */
 export default function ProjectsPage() {
   const [openProjectDialog, setOpenProjectDialog] = useState(false);
 

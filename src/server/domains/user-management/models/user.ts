@@ -25,4 +25,18 @@ export class User {
   public isEmployee() {
     return this.props.email.includes('@gignite')
   }
+
+  static createEnterpriseUser(props: Omit<UserProps, 'userPlan'>) {
+    return new User({
+      ...props,
+      userPlan: USER_PLAN_ENUM.ENTERPRISE
+    })
+  }
+
+  static createFreeUser(props: Omit<UserProps, 'userPlan'>) {
+    return new User({
+      ...props,
+      userPlan: USER_PLAN_ENUM.FREE
+    })
+  }
 }

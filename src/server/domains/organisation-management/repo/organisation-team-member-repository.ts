@@ -28,7 +28,6 @@ export class OrganisationTeamMemberRepository {
     }
   }
 
-  /**@todo add join to retrieve full org user & team information */
   public async getTeamMembersByOrganisationTeamId(organisationTeamId: string) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.organisationTeamMembersSchema

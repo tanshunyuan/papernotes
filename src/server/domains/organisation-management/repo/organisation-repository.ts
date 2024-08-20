@@ -1,4 +1,4 @@
-import { DbService } from '~/server/db';
+import { DbService, DrizzleTransactionScope } from '~/server/db';
 import { Organisation, ORGANISATION_TYPE_ENUM } from './../models/organisation';
 import { organisationSchema } from '~/server/db/schema';
 import { and, count, eq, isNull } from 'drizzle-orm';
@@ -9,10 +9,10 @@ export class OrganisationRepository {
 
   constructor(private readonly dbService: DbService) { }
 
-  public async save(entity: Organisation) {
+  public async save(entity: Organisation, tx?: DrizzleTransactionScope ) {
     try {
       const repoValue = this.mapper.toRepo(entity);
-      await this.dbService.getQueryClient().insert(organisationSchema).values(repoValue)
+      await this.dbService.getQueryClient(tx).insert(organisationSchema).values(repoValue)
     } catch (error) {
       throw new Error(`Error saving organisation: ${error}`)
     }

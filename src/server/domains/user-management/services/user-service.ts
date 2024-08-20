@@ -30,12 +30,10 @@ export class UserService {
       const clerkUser = await clerkClient.users.getUser(userId)
       const fullname = `${clerkUser.firstName} ${clerkUser.lastName}`
 
-      const user = new User({
+      const user = User.createFreeUser({
         id: userId,
         email: clerkUser.primaryEmailAddress?.emailAddress ?? '',
         name: fullname,
-        /**@todo learn how to hide this in the class */
-        userPlan: USER_PLAN_ENUM.FREE
       })
 
       const organisationId = uuid()

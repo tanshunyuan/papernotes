@@ -8,6 +8,7 @@ import { User, USER_PLAN_ENUM } from "../../user-management/models/user";
 import { UserRepository } from "../../user-management/repo/user-repository";
 import { OrganisationResourceLimitsRepository } from '../repo/organisation-resource-limits-repository';
 import { OrganisationResourceLimits } from "../models/organisation-resource-limits";
+import { DbService } from "~/server/db";
 
 interface AddAUserToOrganisationArgs {
   organisationId: string;
@@ -38,6 +39,7 @@ interface UpdateOrganisationResourceLimitsArgs {
 
 export class OrganisationManagementService {
   constructor(
+    private readonly dbService: DbService,
     private readonly userRepository: UserRepository,
     private readonly organisationRepository: OrganisationRepository,
     private readonly membershipRepository: MembershipRepository,
@@ -45,7 +47,6 @@ export class OrganisationManagementService {
   ) { }
 
   /**
-   * @todo need to add fn to add in resource limits & number of seats 
    * @description create an org by employees
    */
   public async createOrganisation(args: {
@@ -97,20 +98,21 @@ export class OrganisationManagementService {
         updatedAt: new Date(),
       })
 
-      /**@todo wrap in transaction */
-      await this.organisationRepository.save(organisation)
-      await this.organisationResourceLimitsRepository.save(organisationResourceLimits);
+      await this.dbService.getQueryClient().transaction(async (tx) => {
+        await this.organisationRepository.save(organisation, tx)
+        await this.organisationResourceLimitsRepository.save(organisationResourceLimits, tx);
+      })
     } catch (error) {
       throw new Error(`Error creating organisation: ${error}`)
     }
   }
 
-  /**@todo might need to check if the clerk account has been created or not */
   public async addANewUserToOrganisation(args: AddAUserToOrganisationArgs) {
     const { organisationId, currentUserId, data } = args
     try {
       const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
       if (!currentUser.isEmployee()) throw new Error('You do not have permission to perform this operation')
+
 
       await this.organisationRepository.getOrganisationByIdOrFail(organisationId)
 
@@ -121,12 +123,10 @@ export class OrganisationManagementService {
         emailAddress: [data.email]
       })
 
-      const user = new User({
+      const user = User.createEnterpriseUser({
         id: clerkUser.id,
         name: `${clerkUser.firstName} ${clerkUser.lastName}`,
         email: clerkUser.primaryEmailAddress?.emailAddress ?? '',
-        /**@todo learn how to hide this in the class */
-        userPlan: USER_PLAN_ENUM.ENTERPRISE
       })
 
       const membership = new Membership({

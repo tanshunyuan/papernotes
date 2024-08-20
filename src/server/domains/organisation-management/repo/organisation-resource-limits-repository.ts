@@ -1,4 +1,4 @@
-import { DbService } from "~/server/db";
+import { DbService, DrizzleTransactionScope } from "~/server/db";
 import { OrganisationResourceLimits, ResourceLimitsConfigurationSchema } from "../models/organisation-resource-limits";
 import { organisationResourceLimitsSchema } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
@@ -7,10 +7,10 @@ export class OrganisationResourceLimitsRepository {
 
   constructor(private readonly dbService: DbService) { }
 
-  public async save(entity: OrganisationResourceLimits) {
+  public async save(entity: OrganisationResourceLimits, tx?: DrizzleTransactionScope ) {
     try {
       const repoValue = entity.getValue();
-      await this.dbService.getQueryClient().insert(organisationResourceLimitsSchema).values(repoValue)
+      await this.dbService.getQueryClient(tx).insert(organisationResourceLimitsSchema).values(repoValue)
     } catch (error) {
       throw new Error(`Error saving organisation resource limits: ${error}`)
     }

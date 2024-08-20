@@ -202,12 +202,14 @@ export const organisationRouter = createTRPCRouter({
       })
     }
   }),
-  /**@todo handle member not in a team */
   getAOrganisationTeam: protectedProcedure.input(z.object({
     organisationId: z.string(),
     teamId: z.string()
   })).query(async ({ ctx, input }) => {
     try {
+      if(!input.teamId) {
+        throw new Error('Member is not in a team')
+      }
       const userId = ctx.auth.userId
       const teamDetail = await organisationTeamManagementService.getOrganisationTeamDetails({
         currentUserId: userId,

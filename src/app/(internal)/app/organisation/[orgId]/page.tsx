@@ -69,7 +69,6 @@ export default function OrganisationPage(props: OrganisationPageProps) {
       </TableContainer>
     </Box>
 
-    {/**@todo Check the user role instead of permission, both of them can read. But it's based on their role, what KIND of information they can read */}
     <Box>
       {getUserDetailsQuery.data.role === MEMBERSHIP_ROLE_ENUM.ADMIN ?
         <AdminOrganisationTeamInfo

@@ -11,7 +11,10 @@ export const ROUTE_PATHS = {
       HOME: (orgId: string) => `/app/organisation/${orgId}`,
       TEAMS: {
         HOME: (orgId: string) => `/app/organisation/${orgId}/team`,
-        CREATE: (orgId: string) => `/app/organisation/${orgId}/team/create`,
+        CREATE: (orgId: string | undefined) => {
+          if (!orgId) throw new Error('orgId is required')
+          return `/app/organisation/${orgId}/team/create`
+        },
         DETAILS: (orgId: string, id: string) => `/app/organisation/${orgId}/team/${id}`
       }
     },

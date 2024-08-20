@@ -3,7 +3,7 @@
 import { Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { ORGANISATION_TEAM_PERMISSIONS } from "~/server/domains/authorisation/utils/permissions"
+import { ORGANISATION_TEAM_PERMISSIONS, PLAN_BASED_ROLE_PERMISSION } from "~/server/domains/authorisation/utils/permissions"
 import { api } from "~/trpc/react"
 import { RouterOutputs } from "~/trpc/shared"
 import { ROUTE_PATHS } from "~/utils/route-paths"
@@ -72,18 +72,19 @@ export default function OrganisationPage(props: OrganisationPageProps) {
     </Box>
 
     <Box>
-      {getUserDetailsQuery.data.permissions?.includes('organisation-team:read_all') ?
+      {getUserDetailsQuery.data.permissions === PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN &&
+        PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.ADMIN.includes('organisation-team:read_all') ?
         <AdminOrganisationTeamInfo
           orgId={props.params.orgId}
           userDetails={getUserDetailsQuery.data}
         /> : null
       }
-      {
+      {getUserDetailsQuery.data.permissions === PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER &&
         getUserDetailsQuery.data.permissions?.includes('organisation-team:read') ?
-          <MemberOrganisationTeamInfo
-            orgId={props.params.orgId}
-            userDetails={getUserDetailsQuery.data}
-          /> : null
+        <MemberOrganisationTeamInfo
+          orgId={props.params.orgId}
+          userDetails={getUserDetailsQuery.data}
+        /> : null
       }
     </Box>
   </Box>
@@ -136,10 +137,10 @@ const MemberOrganisationTeamInfo = (props: {
   userDetails: NonNullable<RouterOutputs['user']['getUserDetails']>
 }) => {
   const [openLeaveOrganisationTeamDialog, setOpenLeaveOrganisationTeamDialog] = useState(false)
-  const isQueryEnabled = !!props.userDetails?.organisation?.teamId && props.userDetails.permissions.includes('organisation-team:read')
+  const isQueryEnabled = !!props.userDetails?.organisation?.teamId && props.userDetails.permissions === PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER && props.userDetails.permissions.includes('organisation-team:read')
   const getAOrganisationTeamDetailQuery = api.organisation.getAOrganisationTeam.useQuery({
     organisationId: props.orgId,
-    teamId: props.userDetails.organisation?.teamId
+    teamId: props.userDetails.organisation?.teamId ?? ''
   }, {
     enabled: isQueryEnabled
   })

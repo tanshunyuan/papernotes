@@ -39,7 +39,7 @@ export class ProjectManagementService {
         projectCount
       })
 
-      if (userDetails.getValue().plan === USER_PLAN_ENUM.FREE) {
+      if (userDetails.getValue().userPlan === USER_PLAN_ENUM.FREE) {
         if (projectCount >= ProjectResourceLimits.MAX_PROJECTS_PER_USER) {
           throw new Error('You have reached the maximum number of projects you can create')
         }
@@ -61,7 +61,7 @@ export class ProjectManagementService {
         await this.projectRepo.save(project)
       }
 
-      if (userDetails.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
+      if (userDetails.getValue().userPlan === USER_PLAN_ENUM.ENTERPRISE) {
         const organisationResourceLimits = await this.organisationResourceLimitsRepo.getResourceLimitsByOrganisationIdOrFail(userMembership.organisationId)
         if (projectCount >= organisationResourceLimits?.getValue().configuration.resources.project.limit) {
           throw new Error('You have reached the maximum number of projects you can create')
@@ -95,7 +95,7 @@ export class ProjectManagementService {
       const user = await this.userRepo.getUserByIdOrFail(args.userId)
       const userMembership = await this.membershipRepo.getMembershipByUserIdOrFail(args.userId)
 
-      if (user.getValue().plan === USER_PLAN_ENUM.FREE) {
+      if (user.getValue().userPlan === USER_PLAN_ENUM.FREE) {
         const projects = (await this.projectRepo.getProjectsByOrganisationIdAndUserId({
           orgId: userMembership.organisationId,
           userId: args.userId
@@ -106,7 +106,7 @@ export class ProjectManagementService {
         return projects
       }
 
-      if (user.getValue().plan === USER_PLAN_ENUM.ENTERPRISE) {
+      if (user.getValue().userPlan === USER_PLAN_ENUM.ENTERPRISE) {
         if (userMembership?.role === MEMBERSHIP_ROLE_ENUM.ADMIN) {
           const allProjects = (await this.projectRepo.getAllOrganisationProjects({ orgId: userMembership.organisationId })).map(project => {
             return {

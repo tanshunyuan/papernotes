@@ -1,5 +1,5 @@
 import { DbService } from '~/server/db';
-import { organisationTeamMembersSchema } from '~/server/db/schema';
+import { membershipsSchema, organisationTeamMembersSchema, organisationTeamsSchema, userSchema } from '~/server/db/schema';
 import { and, eq, isNull } from 'drizzle-orm';
 import { OrganisationTeamMember } from '../models/organisation-team-member';
 // how do i check if a user is part of a team? 
@@ -125,6 +125,38 @@ export class OrganisationTeamMemberRepository {
         }).getValue(),
         teamName: rawResults.organisation_team.name,
       }
+    } catch (error) {
+      throw new Error(`Error getting team member by organisation user id: ${error}`)
+    }
+  }
+
+  public async getAllTeamMembersInAnOrganisation(args: { organisationId: string }) {
+    try {
+
+      const rawResults = await this.dbService.getQueryClient().select()
+        .from(organisationTeamMembersSchema)
+        .leftJoin(organisationTeamsSchema, eq(organisationTeamMembersSchema.organisationTeamId, organisationTeamsSchema.id))
+        .leftJoin(membershipsSchema, eq(membershipsSchema.id, organisationTeamMembersSchema.membershipId))
+        .leftJoin(userSchema, eq(userSchema.id, membershipsSchema.userId))
+        .where(and(eq(organisationTeamsSchema.organisationId, args.organisationId), isNull(organisationTeamMembersSchema.leftAt)))
+
+      if (!rawResults || rawResults.length === 0) return []
+      const results = rawResults.map(item => {
+        const { organisation_team_members: teamMember, users: user } = item
+        return {
+          ...new OrganisationTeamMember({
+            organisationTeamId: teamMember.organisationTeamId,
+            membershipId: teamMember.membershipId,
+            joinedAt: teamMember.joinedAt,
+            leftAt: teamMember.leftAt,
+          }).getValue(),
+          userId: user!.id,
+          name: user!.name,
+          email: user!.email,
+        }
+      }
+      )
+      return results
     } catch (error) {
       throw new Error(`Error getting team member by organisation user id: ${error}`)
     }

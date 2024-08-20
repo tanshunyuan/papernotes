@@ -88,7 +88,6 @@ export class OrganisationTeamManagementService {
   public async getOrganisationTeamDetails(args: { orgId: string, teamId: string, currentUserId: string }) {
     try {
       const membership = await this.membershipRepo.getMembershipByUserIdOrFail(args.currentUserId)
-      /**@todo only allow admin and fellow team mbmer to query */
       if (membership.role !== MEMBERSHIP_ROLE_ENUM.ADMIN && !membership.organisationTeamIds.includes(args.teamId)) throw new Error('You do not have permission to perform this operation')
 
       const orgTeam = await this.organisationTeamRepo.getOrganisationTeamByIdOrFail(args.teamId)
@@ -115,7 +114,9 @@ export class OrganisationTeamManagementService {
       if (membership.role !== MEMBERSHIP_ROLE_ENUM.ADMIN) throw new Error('You do not have permission to perform this operation')
 
       const allOrgMembers = (await this.membershipRepo.getAllMemberships(args.orgId)).filter(user => user.role === MEMBERSHIP_ROLE_ENUM.MEMBER)
-      const allOrgMembersInATeam = await this.organisationTeamMemberRepository.getTeamMembersByOrganisationTeamId(args.teamId)
+      const allOrgMembersInATeam = await this.organisationTeamMemberRepository.getAllTeamMembersInAnOrganisation({
+        organisationId: args.orgId
+      })
 
       const allOrgMembersNotInATeam = allOrgMembers.filter(member =>
         member.role === MEMBERSHIP_ROLE_ENUM.MEMBER &&

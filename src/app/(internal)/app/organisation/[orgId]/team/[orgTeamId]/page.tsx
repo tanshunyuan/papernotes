@@ -36,7 +36,6 @@ export default function OrganisationTeamDetailsPage(props: OrganisationTeamDetai
   const organisationContext = api.useUtils().organisation
 
   const handleRemoveTeamMember = (args: { memberId: string, teamId: string }) => {
-    // to be implemented
     removeOrganisationTeamMemberMutation.mutate({
       memberId: args.memberId,
       orgTeamId: args.teamId

@@ -7,16 +7,58 @@ export class MembershipRepository {
 
   constructor(private readonly dbService: DbService) { }
 
-  /**
-   * @todo need to check if there are other isCurrent that are true, if so set them to false
-   * and only allow the incoming one to be true
-   */
+  /**@description the most recent membership created for the user will be set to true*/
   public async save(entity: Membership) {
     try {
       const repoValue = entity.getValue();
+      const userMemberships = await this.getAllUserMemberships(entity.getValue().userId)
+
+      // only if user has other membership
+      if(userMemberships.length > 0){
+        const setOtherOrganisationMembershipToFalse = userMemberships.map(membership => ({
+          ...membership,
+           isCurrent: false
+        }))
+
+        await this.dbService.getQueryClient().transaction(async (tx) => {
+          for (const membership of setOtherOrganisationMembershipToFalse) {
+            await tx
+              .update(membershipsSchema)
+              .set({
+                isCurrent: membership.isCurrent,
+                updatedAt: new Date(),
+              })
+              .where(eq(membershipsSchema.id, membership.id));
+          }
+        });
+      }
+
       await this.dbService.getQueryClient().insert(membershipsSchema).values(repoValue)
     } catch (error) {
       throw new Error(`Error saving organisation user: ${error}`)
+    }
+  }
+
+  public async getAllUserMemberships(userId: string) {
+    try {
+      const rawResults = await this.dbService.getQueryClient().query.membershipsSchema.findMany({
+        where: and(eq(membershipsSchema.userId, userId), eq(membershipsSchema.isCurrent, true)),
+        with: {
+          organisation_team_members: {
+            columns: {
+              organisationTeamId: true
+            }
+          }
+        }
+      })
+      return rawResults.map(membership => {
+        return {
+          ...membership,
+          role: membership.role as MEMBERSHIP_ROLE_ENUM
+        }
+      })
+    } catch (error) {
+      throw new Error(`Error getting all user memberships: ${error}`)
     }
   }
 

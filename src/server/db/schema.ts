@@ -42,17 +42,14 @@ export const userSchema = createTable(
 )
 
 export const userSchemaRelations = relations(userSchema, ({ many }) => ({
-  /**@deprecated to be removed once all projects have an organisationId */
   projects: many(projectSchema)
 }))
 
 export const projectSchema = createTable('projects', {
   id: text('id').primaryKey().notNull(),
   name: text('name').notNull(),
-  /**@deprecated to be removed once all projects have an organisationId */
   userId: text('user_id').references(() => userSchema.id).notNull(),
-  /**@todo make it not null once all projects have an organisationId */
-  organisationId: text('organisation_id').references(() => organisationSchema.id),
+  organisationId: text('organisation_id').references(() => organisationSchema.id).notNull(),
   organisationTeamId: text('organisation_team_id').references(() => organisationTeamsSchema.id),
   description: text('description').notNull(),
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),

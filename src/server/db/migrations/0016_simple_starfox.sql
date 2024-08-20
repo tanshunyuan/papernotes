@@ -1,0 +1,1 @@
+ALTER TABLE "papernotes_projects" ALTER COLUMN "organisation_id" SET NOT NULL;

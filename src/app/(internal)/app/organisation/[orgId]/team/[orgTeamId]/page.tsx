@@ -21,9 +21,6 @@ type OrganisationTeamDetailsPageProps = {
   }
 }
 
-/**
- * @todo Once a user is added to a team prevent them from being added to another team
- */
 export default function OrganisationTeamDetailsPage(props: OrganisationTeamDetailsPageProps) {
   const router = useRouter()
   const [openAddOrgTeamMemberDialog, setOpenAddOrgTeamMemberDialog] = useState(false)

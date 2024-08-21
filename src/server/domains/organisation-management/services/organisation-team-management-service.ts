@@ -72,7 +72,7 @@ export class OrganisationTeamManagementService {
     }
   }
 
-  /**@todo might need to adapt team details and allow gignite employee to query as well */
+  /**@todo might need to adapt team details and allow employee to query as well */
   public async getAllOrganisationTeams(args: { orgId: string, currentUserId: string }) {
     try {
       const membership = await this.membershipRepo.getMembershipByUserIdOrNull(args.currentUserId)

@@ -1,7 +1,6 @@
 'use client';
 
-import { Box, AppBar, Toolbar, IconButton, Typography, Button, Skeleton, Breadcrumbs, Link as MuiLink } from "@mui/material"
-import MenuIcon from '@mui/icons-material/Menu';
+import { Box, AppBar, Toolbar, Typography, Button, Skeleton, Breadcrumbs, Link as MuiLink } from "@mui/material"
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "~/utils/route-paths";
@@ -43,7 +42,7 @@ export const AppNavbar = () => {
           </Typography>
 
 
-          {userQuery.data?.email.includes('@gignite') ?
+          {userQuery.data?.email.includes('@employee') ?
             <Typography>
               <Link href={ROUTE_PATHS.APP.TOOLS.HOME}>
                 Tools

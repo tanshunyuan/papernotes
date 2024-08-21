@@ -10,8 +10,6 @@ import { OrganisationResourceLimitsRepository } from '../repo/organisation-resou
 import { OrganisationResourceLimits } from "../models/organisation-resource-limits";
 import { DbService } from "~/server/db";
 
-interface AddAUserToOrganisationArgs {
-}
 
 interface UpdateMembershipRoleArgs {
   currentUserId: string;

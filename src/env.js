@@ -17,7 +17,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    PERMIT_API_KEY: z.string(),
+    // PERMIT_API_KEY: z.string(),
     CLERK_SECRET_KEY: z.string(),
   },
 
@@ -41,7 +41,7 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
-    PERMIT_API_KEY: process.env.PERMIT_API_KEY,
+    // PERMIT_API_KEY: process.env.PERMIT_API_KEY,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,

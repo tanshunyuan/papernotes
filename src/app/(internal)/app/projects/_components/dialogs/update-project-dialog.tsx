@@ -31,7 +31,7 @@ type Schema = zod.infer<typeof schema>;
 type UpdateProjectDialogProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  project: NonNullable<RouterOutputs['project']['getProjectsByUserId']>[number];
+  project: NonNullable<RouterOutputs['project']['getUserProjects']>[number];
 };
 
 export const UpdateProjectDialog = (props: UpdateProjectDialogProps) => {
@@ -71,7 +71,7 @@ export const UpdateProjectDialog = (props: UpdateProjectDialogProps) => {
             toast.error(error.message);
           },
           onSettled: () => {
-            projectContext.getProjectsByUserId.invalidate()
+            projectContext.getUserProjects.invalidate()
           }
         },
       );

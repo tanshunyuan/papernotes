@@ -18,8 +18,6 @@ export default clerkMiddleware((auth, req) => {
 
   if (isProtectedRoute(req)) auth().protect();
 }, {
-  afterSignInUrl: env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
-  afterSignUpUrl: env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,
   signInUrl: env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
   signUpUrl: env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,
   debug: false

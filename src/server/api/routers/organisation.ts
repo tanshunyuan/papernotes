@@ -85,7 +85,8 @@ export const organisationRouter = createTRPCRouter({
     firstName: z.string(),
     lastName: z.string(),
     email: z.string(),
-    password: z.string()
+    password: z.string(),
+    memberType: z.nativeEnum(MEMBERSHIP_ROLE_ENUM)
   })).mutation(async ({ ctx, input }) => {
     try {
       const userId = ctx.auth.userId
@@ -96,8 +97,9 @@ export const organisationRouter = createTRPCRouter({
           email: input.email,
           firstName: input.firstName,
           lastName: input.lastName,
-          password: input.password
-        }
+          password: input.password,
+        },
+        memberType: input.memberType
       })
     } catch (e) {
       const error = e as Error

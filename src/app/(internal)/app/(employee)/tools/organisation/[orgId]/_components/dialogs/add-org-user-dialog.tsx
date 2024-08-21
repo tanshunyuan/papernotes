@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, InputLabel, TextField } from "@mui/material"
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close";
 import { Controller, useForm } from "react-hook-form"
 import { isValid, z } from "zod"
 import { api } from "~/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
+import { MEMBERSHIP_ROLE_ENUM } from "~/server/domains/organisation-management/models/membership";
 
 type AddOrgUserDialogProps = {
   orgId: string
@@ -20,6 +21,7 @@ const schema = z.object({
   }),
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  memberType: z.nativeEnum(MEMBERSHIP_ROLE_ENUM)
 });
 
 type Schema = z.infer<typeof schema>;
@@ -40,7 +42,8 @@ export const AddOrgUserDialog = (props: AddOrgUserDialogProps) => {
       firstName: "",
       lastName: "",
       email: "",
-      password: ""
+      password: "",
+      memberType: MEMBERSHIP_ROLE_ENUM.MEMBER
     },
   });
 
@@ -54,6 +57,7 @@ export const AddOrgUserDialog = (props: AddOrgUserDialogProps) => {
         lastName: data.lastName,
         email: data.email,
         password: data.password,
+        memberType: data.memberType
       },
         {
           onSuccess: () => {
@@ -227,6 +231,26 @@ export const AddOrgUserDialog = (props: AddOrgUserDialogProps) => {
               }
               required
             />
+          </>
+        )}
+      />
+      <Controller
+        name="memberType"
+        control={control}
+        render={({ field }) => (
+          <>
+            <InputLabel error={!!errors.memberType} required>
+              Member Type
+            </InputLabel>
+            <FormControl fullWidth sx={{ marginTop: "0.5rem", marginBottom: "1.5rem" }}>
+              <Select
+                {...field}
+                error={!!errors.memberType}
+              >
+                <MenuItem value={MEMBERSHIP_ROLE_ENUM.ADMIN}>Admin</MenuItem>
+                <MenuItem value={MEMBERSHIP_ROLE_ENUM.MEMBER}>Member</MenuItem>
+              </Select>
+            </FormControl>
           </>
         )}
       />

@@ -11,15 +11,6 @@ import { OrganisationResourceLimits } from "../models/organisation-resource-limi
 import { DbService } from "~/server/db";
 
 interface AddAUserToOrganisationArgs {
-  organisationId: string;
-  /**@description authenticated user id */
-  currentUserId: string
-  data: {
-    email: string
-    password: string
-    firstName: string
-    lastName: string
-  }
 }
 
 interface UpdateMembershipRoleArgs {
@@ -107,7 +98,18 @@ export class OrganisationManagementService {
     }
   }
 
-  public async addANewUserToOrganisation(args: AddAUserToOrganisationArgs) {
+  public async addANewUserToOrganisation(args: {
+    organisationId: string;
+    /**@description authenticated user id */
+    currentUserId: string
+    data: {
+      email: string
+      password: string
+      firstName: string
+      lastName: string
+    },
+    memberType: MEMBERSHIP_ROLE_ENUM
+  }) {
     const { organisationId, currentUserId, data } = args
     try {
       const currentUser = await this.userRepository.getUserByIdOrFail(currentUserId);
@@ -136,7 +138,7 @@ export class OrganisationManagementService {
         createdAt: new Date(),
         updatedAt: new Date(),
         /**@todo to change this into dynamic */
-        role: MEMBERSHIP_ROLE_ENUM.MEMBER,
+        role: args.memberType,
         isCurrent: true
       })
 

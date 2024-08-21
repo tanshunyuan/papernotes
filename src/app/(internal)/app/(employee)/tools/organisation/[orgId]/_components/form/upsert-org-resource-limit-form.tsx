@@ -22,7 +22,7 @@ const schema = z.object({
 type Schema = z.infer<typeof schema>;
 
 export const UpsertOrgResourcesForm = (props: UpsertOrgResourcesFormProps) => {
-  const { orgId, resourceLimits} = props
+  const { orgId, resourceLimits } = props
   const [editResourceLimit, setEditResourceLimit] = useState(false);
 
   const organisationContext = api.useUtils().organisation;
@@ -78,7 +78,7 @@ export const UpsertOrgResourcesForm = (props: UpsertOrgResourcesFormProps) => {
         display: 'flex',
         justifyContent: 'space-between',
       }}>
-        <Typography>Organisation Resource Limits</Typography>
+        <Typography variant="h6">Organisation Resource Limits</Typography>
         <Box>
           {!editResourceLimit ?
             <Button onClick={() => setEditResourceLimit(prev => !prev)}>Edit Resource Limit</Button> :
@@ -92,9 +92,18 @@ export const UpsertOrgResourcesForm = (props: UpsertOrgResourcesFormProps) => {
 
       {
         !editResourceLimit ?
-          <pre>
-            {JSON.stringify(resourceLimits?.configuration, null, 2)}
-          </pre> :
+          <Box sx={{
+            display: 'flex',
+            gap: '2rem'
+          }}>
+            <Box>
+              <Typography>Project Limit: {resourceLimits?.configuration.resources.project.limit}</Typography>
+              <Typography>Project Reset Duration: {resourceLimits?.configuration.resources.project.reset_duration_days}</Typography>
+            </Box>
+            <Box>
+              <Typography>Feature Limit: {resourceLimits?.configuration.resources.feature.limit}</Typography>
+            </Box>
+          </Box> :
           <>
             <Controller
               name="projectLimit"
@@ -185,7 +194,7 @@ export const UpsertOrgResourcesForm = (props: UpsertOrgResourcesFormProps) => {
                   fontSize: "0.875rem",
                   paddingInline: "1.75rem",
                 }}
-                disabled={!isValid || updateOrgResourcesMutation.isPending }
+                disabled={!isValid || updateOrgResourcesMutation.isPending}
                 type="submit"
                 color="primary"
                 variant="contained"

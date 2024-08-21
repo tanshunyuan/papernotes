@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "next build",
+    "build": "pnpm run db:migrate && next build",
     "dev": "pnpm run db:migrate && next dev",
     "db:generate": "dotenv drizzle-kit generate:pg",
     "db:drop": "dotenv drizzle-kit drop",

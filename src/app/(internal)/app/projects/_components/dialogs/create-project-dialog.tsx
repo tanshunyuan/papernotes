@@ -35,6 +35,7 @@ type CreateProjectDialogProps = {
 export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
   const { open, setOpen } = props;
   const projectContext = api.useUtils().project;
+  const userContext = api.useUtils().user
 
   const userQuery = api.user.getUserDetails.useQuery()
 
@@ -70,7 +71,8 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
             toast.error(error.message);
           },
           onSettled: () => {
-            projectContext.getProjectsByUserId.invalidate()
+            projectContext.getUserProjects.invalidate()
+            userContext.getUserResourceLimits.invalidate()
             onClose()
           }
         },
@@ -82,7 +84,7 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
     setOpen(false);
   };
 
-  if(userQuery.isLoading) return <div>Loading...</div>
+  if (userQuery.isLoading) return <div>Loading...</div>
 
   return (
     <>

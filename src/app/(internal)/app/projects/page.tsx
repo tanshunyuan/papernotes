@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 'use client';
 
-import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
+import { Box, Button, LinearProgress, Menu, MenuItem, Typography } from "@mui/material";
 import { useSeedNewUser } from "~/hooks/use-seed-user";
 import { api } from "~/trpc/react";
 import isEmpty from 'lodash/isEmpty'
@@ -13,11 +13,6 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "~/utils/route-paths";
 
-/**
- * 
- * @todo fix org team not assigned to project creation
- * @todo fix query to exclude project with team id
- */
 export default function ProjectsPage() {
   const [openProjectDialog, setOpenProjectDialog] = useState(false);
 
@@ -58,21 +53,53 @@ export default function ProjectsPage() {
       >
         {getProjectsQuery.data?.map(project => (<ProjectCard key={project.id} project={project} />))}
       </Box>
-
     </Box>}
+
   </Box>
 }
 
 const ProjectLimits = () => {
   const userResourceLimitsQuery = api.user.getUserResourceLimits.useQuery();
   if (userResourceLimitsQuery.isLoading) return <div>Loading...</div>
-  return <Box>
-    <Typography variant="h6">Project Limits</Typography>
-    <pre>
-      {JSON.stringify(userResourceLimitsQuery.data, null)}
-    </pre>
-  </Box>
 
+  const totalProjects = userResourceLimitsQuery.data?.resource.projects.quota;
+  const usedSeats = userResourceLimitsQuery.data?.resource.projects.used;
+  const progress = (usedSeats! / totalProjects!) * 100;
+
+  return (
+    <Box
+      sx={{
+        border: '1px solid #ccc',
+        borderRadius: '1rem',
+        p: '1rem',
+        width: '50%'
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 1,
+        }}
+      >
+        <Typography variant="subtitle1">Projects</Typography>
+        <Typography variant="subtitle1">{usedSeats} of {totalProjects} projects used</Typography>
+      </Box>
+      <LinearProgress
+        variant="determinate"
+        value={progress}
+        sx={{
+          height: 10,
+          borderRadius: '4px',
+          backgroundColor: '#e0e0e0',
+          '& .MuiLinearProgress-bar': {
+            backgroundColor: '#1976d2',
+          },
+        }}
+      />
+    </Box>
+  );
 }
 
 interface ProjectCardProps {
@@ -87,6 +114,7 @@ const ProjectCard = (props: ProjectCardProps) => {
 
   const deleteProjectMutation = api.project.deleteAProject.useMutation();
   const projectContext = api.useUtils().project;
+  const userContext = api.useUtils().user
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -112,6 +140,7 @@ const ProjectCard = (props: ProjectCardProps) => {
       },
       onSettled: () => {
         projectContext.getUserProjects.invalidate()
+        userContext.getUserResourceLimits.invalidate()
         handleClose()
       }
     })

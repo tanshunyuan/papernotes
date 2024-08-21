@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
-'use client';
+'use client'
 
 import { Box, Button, LinearProgress, Menu, MenuItem, Typography } from "@mui/material";
 import { useSeedNewUser } from "~/hooks/use-seed-user";
@@ -9,7 +8,7 @@ import React, { useState } from "react";
 import { CreateProjectDialog } from "./_components/dialogs/create-project-dialog";
 import { type RouterOutputs } from "~/trpc/shared";
 import { UpdateProjectDialog } from "./_components/dialogs/update-project-dialog";
-import toast from "react-hot-toast";
+import toast, { Renderable, Toast, ValueFunction } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "~/utils/route-paths";
 
@@ -51,7 +50,7 @@ export default function ProjectsPage() {
           gap: '1rem'
         }}
       >
-        {getProjectsQuery.data?.map(project => (<ProjectCard key={project.id} project={project} />))}
+        {getProjectsQuery.data ? getProjectsQuery.data.map((project) => (<ProjectCard key={project.id} project={project} />)) : null}
       </Box>
     </Box>}
 
@@ -62,9 +61,11 @@ const ProjectLimits = () => {
   const userResourceLimitsQuery = api.user.getUserResourceLimits.useQuery();
   if (userResourceLimitsQuery.isLoading) return <div>Loading...</div>
 
-  const totalProjects = userResourceLimitsQuery.data?.resource.projects.quota;
-  const usedSeats = userResourceLimitsQuery.data?.resource.projects.used;
-  const progress = (usedSeats! / totalProjects!) * 100;
+  if (!userResourceLimitsQuery.data) return <div>No data</div>
+
+  const totalProjects = userResourceLimitsQuery.data.resource.projects.quota;
+  const usedSeats = userResourceLimitsQuery.data.resource.projects.used;
+  const progress = (usedSeats / totalProjects) * 100;
 
   return (
     <Box
@@ -135,7 +136,7 @@ const ProjectCard = (props: ProjectCardProps) => {
       onSuccess: () => {
         toast.success("Project deleted successfully")
       },
-      onError: (error) => {
+      onError: (error: { message: Renderable | ValueFunction<Renderable, Toast>; }) => {
         toast.error(error.message);
       },
       onSettled: () => {
@@ -190,8 +191,7 @@ const ProjectCard = (props: ProjectCardProps) => {
           }
 
           {
-            // @ts-expect-error ignore this
-            project.permissions?.includes('project:delete') ?
+            project.permissions?.includes('project:delete' as 'project:create' | 'project:read' | 'project:update') ?
               <MenuItem sx={{ color: 'red' }} onClick={handleDeleteProject}>Delete</MenuItem> : null
           }
         </Menu>

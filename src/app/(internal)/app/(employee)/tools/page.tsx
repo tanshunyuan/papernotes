@@ -1,6 +1,4 @@
 'use client'
-// only viewable by authorised users - internal-employees
-// everybody can CRUD all organisations
 
 import { Box, Button, Typography } from "@mui/material";
 import { type RouterOutputs } from "~/trpc/shared";

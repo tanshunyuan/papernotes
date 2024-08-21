@@ -23,7 +23,7 @@ export class User {
   }
 
   public isEmployee() {
-    return this.props.email.includes('@gignite')
+    return this.props.email.includes('@employee')
   }
 
   static createEnterpriseUser(props: Omit<UserProps, 'userPlan'>) {

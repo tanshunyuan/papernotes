@@ -9,7 +9,7 @@ import { projectManagementService } from '~/server/domains/project-management/se
 const createProjectValidator = z.object({
   name: z.string().min(1).max(100),
   description: z.string().min(1).max(100),
-  teamId: z.string().optional()
+  teamId: z.string().nullable()
 })
 
 const updateProjectValidator = z.object({
@@ -34,7 +34,7 @@ export const projectRouter = createTRPCRouter({
         description: input.description,
         name: input.name,
         userId,
-        teamId: input.teamId ?? null
+        teamId: input.teamId
       })
     } catch (e) {
       const error = e as Error
@@ -45,7 +45,7 @@ export const projectRouter = createTRPCRouter({
     }
   }),
 
-  getProjectsByUserId: protectedProcedure.query(async ({ ctx }) => {
+  getUserProjects: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.auth.userId
     try {
       const projects = await projectManagementService.getUserProjects({ userId })

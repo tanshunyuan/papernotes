@@ -35,6 +35,9 @@ type CreateProjectDialogProps = {
 export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
   const { open, setOpen } = props;
   const projectContext = api.useUtils().project;
+
+  const userQuery = api.user.getUserDetails.useQuery()
+
   const {
     control,
     handleSubmit,
@@ -55,6 +58,7 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
     handleSubmit((data) => {
       projectCreateMutation.mutate(
         {
+          teamId: userQuery.data?.organisation?.teamId ?? null,
           description: data.description,
           name: data.name,
         },
@@ -77,6 +81,8 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
     reset();
     setOpen(false);
   };
+
+  if(userQuery.isLoading) return <div>Loading...</div>
 
   return (
     <>

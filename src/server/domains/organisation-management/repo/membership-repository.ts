@@ -1,7 +1,7 @@
 import { DbService } from "~/server/db";
 import { MEMBERSHIP_ROLE_ENUM, Membership } from "../models/membership";
-import { and, eq } from "drizzle-orm";
-import { membershipsSchema } from "~/server/db/schema";
+import { and, eq, isNull } from "drizzle-orm";
+import { membershipsSchema, organisationTeamMembersSchema } from "~/server/db/schema";
 
 export class MembershipRepository {
 
@@ -14,10 +14,10 @@ export class MembershipRepository {
       const userMemberships = await this.getAllUserMemberships(entity.getValue().userId)
 
       // only if user has other membership
-      if(userMemberships.length > 0){
+      if (userMemberships.length > 0) {
         const setOtherOrganisationMembershipToFalse = userMemberships.map(membership => ({
           ...membership,
-           isCurrent: false
+          isCurrent: false
         }))
 
         await this.dbService.getQueryClient().transaction(async (tx) => {
@@ -126,11 +126,15 @@ export class MembershipRepository {
   public async getMembershipByUserIdOrNull(userId: string) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.membershipsSchema.findFirst({
-        where: and(eq(membershipsSchema.userId, userId), eq(membershipsSchema.isCurrent, true)),
+        where: and(
+          eq(membershipsSchema.userId, userId),
+          eq(membershipsSchema.isCurrent, true)
+        ),
         with: {
           organisation_team_members: {
             columns: {
-              organisationTeamId: true
+              organisationTeamId: true,
+              leftAt: true
             }
           }
         }
@@ -148,7 +152,8 @@ export class MembershipRepository {
           updatedAt: rawResults.updatedAt,
           isCurrent: rawResults.isCurrent
         }).getValue(),
-        organisationTeamIds: rawResults.organisation_team_members.map(teamMember => teamMember.organisationTeamId)
+        /**@todo check if this is still needed */
+        organisationTeamIds: rawResults.organisation_team_members.filter(teamMember => teamMember.leftAt === null).map(teamMember => teamMember.organisationTeamId)
       }
       return result
     } catch (error) {

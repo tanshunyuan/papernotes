@@ -79,6 +79,10 @@ export class ProjectManagementService {
       const user = await this.userRepo.getUserByIdOrFail(args.userId)
       const userMembership = await this.membershipRepo.getMembershipByUserIdOrFail(args.userId)
 
+      console.log('getUserProjects.userMembership', {
+        details: userMembership
+      })
+
       if (user.getValue().userPlan === USER_PLAN_ENUM.FREE) {
         const projects = (await this.projectRepo.getProjectsByOrganisationIdAndUserId({
           orgId: userMembership.organisationId,
@@ -102,11 +106,11 @@ export class ProjectManagementService {
         }
 
         if (userMembership?.role === MEMBERSHIP_ROLE_ENUM.MEMBER) {
-          // If you're part of a team retrieve all projects for that team
-          // else retrieve all projects for that user
-
           const organisationTeamMember = await this.organisationTeamMemberRepo.getTeamMemberByMembershipIdOrNull({
             membershipId: userMembership.id
+          })
+          console.log('getUserProjects.if.ENTERPRISE.if.MEMBER.organisationTeamMember', {
+            details: organisationTeamMember
           })
 
           if (!organisationTeamMember) {
@@ -115,6 +119,9 @@ export class ProjectManagementService {
               ...project.getValue(),
               permissions: PLAN_BASED_ROLE_PERMISSION.ENTERPRISE.MEMBER
             }))
+            console.log('getUserProjects.if.ENTERPRISE.if.MEMBER.projects', {
+              details: projects
+            })
             return projects
           } else {
             // in a team

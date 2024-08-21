@@ -53,7 +53,7 @@ export class ProjectRepository {
     try {
       const rawResults = await this.dbService.getQueryClient().select({
         count: count()
-      }).from(projectSchema).where(eq(projectSchema.userId, userId))
+      }).from(projectSchema).where(and(eq(projectSchema.userId, userId), isNull(projectSchema.deletedAt)))
       console.log('rawResults', rawResults)
       if (!rawResults) return null
 
@@ -83,7 +83,7 @@ export class ProjectRepository {
     try {
       const rawResults = await this.dbService.getQueryClient().query.projectSchema
         .findMany({
-          where: eq(projectSchema.userId, userId),
+          where: and(eq(projectSchema.userId, userId), isNull(projectSchema.deletedAt)),
           with: {
             users: {
               columns: {
@@ -105,14 +105,17 @@ export class ProjectRepository {
     }
   }
 
+  /**@description grab projects without team id */
   public async getProjectsByOrganisationIdAndUserId(args: { orgId: string, userId: string }) {
     try {
       const rawResults = await this.dbService.getQueryClient().query.projectSchema
         .findMany({
           where: and(
-            eq(projectSchema.organisationId, args.orgId), 
-          eq(projectSchema.userId, args.userId)
-        ),
+            eq(projectSchema.organisationId, args.orgId),
+            eq(projectSchema.userId, args.userId),
+            isNull(projectSchema.organisationTeamId),
+            isNull(projectSchema.deletedAt)
+          ),
           with: {
             users: {
               columns: {
@@ -161,7 +164,7 @@ export class ProjectRepository {
       //   .leftJoin(organisationSchema, eq(organisationSchema.id, MembershipsSchema.organisationId))
       //   .where(eq(MembershipsSchema.organisationId, args.orgId));
       const rawResults = await this.dbService.getQueryClient().query.projectSchema.findMany({
-        where: eq(projectSchema.organisationId, args.orgId),
+        where: and(eq(projectSchema.organisationId, args.orgId), isNull(projectSchema.deletedAt)),
         with: {
           users: {
             columns: {
@@ -205,7 +208,7 @@ export class ProjectRepository {
         .leftJoin(organisationTeamMembersSchema, eq(membershipsSchema.id, organisationTeamMembersSchema.membershipId))
         .leftJoin(organisationTeamsSchema, eq(organisationTeamMembersSchema.organisationTeamId, organisationTeamsSchema.id))
         .leftJoin(organisationSchema, eq(organisationTeamsSchema.organisationId, organisationSchema.id))
-        .where(eq(organisationTeamsSchema.id, args.orgTeamId)).execute()
+        .where(and(eq(organisationTeamsSchema.id, args.orgTeamId), isNull(projectSchema.deletedAt))).execute()
 
       if (!rawResults || rawResults.length === 0) return []
 
@@ -219,7 +222,7 @@ export class ProjectRepository {
           createdAt: items.projects.createdAt,
           updatedAt: items.projects.updatedAt,
           deletedAt: items.projects.deletedAt,
-          organisationId: items.organisations?.id ?? null,
+          organisationId: items.organisations!.id,
           organisationTeamId: null
         })
       })

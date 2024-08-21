@@ -21,7 +21,7 @@ import { ROUTE_PATHS } from "~/utils/route-paths";
 export default function ProjectsPage() {
   const [openProjectDialog, setOpenProjectDialog] = useState(false);
 
-  const getProjectsQuery = api.project.getProjectsByUserId.useQuery();
+  const getProjectsQuery = api.project.getUserProjects.useQuery();
   const isProjectsEmpty = isEmpty(getProjectsQuery.data)
 
   const handleCreateProject = () => {
@@ -76,7 +76,7 @@ const ProjectLimits = () => {
 }
 
 interface ProjectCardProps {
-  project: NonNullable<RouterOutputs['project']['getProjectsByUserId']>[number];
+  project: NonNullable<RouterOutputs['project']['getUserProjects']>[number];
 }
 const ProjectCard = (props: ProjectCardProps) => {
   const { project } = props;
@@ -111,7 +111,7 @@ const ProjectCard = (props: ProjectCardProps) => {
         toast.error(error.message);
       },
       onSettled: () => {
-        projectContext.getProjectsByUserId.invalidate()
+        projectContext.getUserProjects.invalidate()
         handleClose()
       }
     })

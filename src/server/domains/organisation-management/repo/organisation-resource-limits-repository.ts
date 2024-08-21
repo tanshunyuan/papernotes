@@ -1,4 +1,4 @@
-import { DbService, DrizzleTransactionScope } from "~/server/db";
+import { type DbService, type DrizzleTransactionScope } from "~/server/db";
 import { OrganisationResourceLimits, ResourceLimitsConfigurationSchema } from "../models/organisation-resource-limits";
 import { organisationResourceLimitsSchema } from "~/server/db/schema";
 import { eq } from "drizzle-orm";

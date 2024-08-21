@@ -1,4 +1,4 @@
-import { DbService } from '~/server/db';
+import { type DbService } from '~/server/db';
 import { membershipsSchema, organisationTeamMembersSchema, organisationTeamsSchema, userSchema } from '~/server/db/schema';
 import { and, eq, isNull } from 'drizzle-orm';
 import { OrganisationTeamMember } from '../models/organisation-team-member';

@@ -1,6 +1,6 @@
-import { organisationSchema } from "~/server/db/schema";
+import { type organisationSchema } from "~/server/db/schema";
 import { Organisation, ORGANISATION_TYPE_ENUM } from "../models/organisation";
-import { InferSelectModel, Or } from "drizzle-orm";
+import { type InferSelectModel, Or } from "drizzle-orm";
 
 type OrganisationSchemaType = InferSelectModel<typeof organisationSchema>
 

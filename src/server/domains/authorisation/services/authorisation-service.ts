@@ -1,6 +1,6 @@
 import { USER_PLAN_ENUM } from '~/server/domains/user-management/models/user';
-import { Permissions } from '../utils/permissions';
-import { UserRepository } from '../../user-management/repo/user-repository';
+import { type Permissions } from '../utils/permissions';
+import { type UserRepository } from '../../user-management/repo/user-repository';
 
 /**@todo to think how can it accomodate different plans + resource permissions */
 export class AuthorisationService {

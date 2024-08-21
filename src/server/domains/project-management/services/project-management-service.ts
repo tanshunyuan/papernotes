@@ -1,15 +1,15 @@
 import { PLAN_BASED_ROLE_PERMISSION, PROJECT_PERIMSSIONS } from './../../authorisation/utils/permissions';
-import { ProjectRepository } from "../repo/project-repository";
-import { AuthorisationService } from '../../authorisation/services/authorisation-service';
+import { type ProjectRepository } from "../repo/project-repository";
+import { type AuthorisationService } from '../../authorisation/services/authorisation-service';
 import { Project } from '../models/project';
 import { uuid } from 'uuidv4';
 import { ProjectResourceLimits } from '../../authorisation/utils/resource-limits';
-import { UserRepository } from '../../user-management/repo/user-repository';
-import { MembershipRepository } from '../../organisation-management/repo/membership-repository';
+import { type UserRepository } from '../../user-management/repo/user-repository';
+import { type MembershipRepository } from '../../organisation-management/repo/membership-repository';
 import { USER_PLAN_ENUM } from '../../user-management/models/user';
 import { MEMBERSHIP_ROLE_ENUM } from '../../organisation-management/models/membership';
-import { OrganisationResourceLimitsRepository } from '../../organisation-management/repo/organisation-resource-limits-repository';
-import { OrganisationTeamMemberRepository } from '../../organisation-management/repo/organisation-team-member-repository';
+import { type OrganisationResourceLimitsRepository } from '../../organisation-management/repo/organisation-resource-limits-repository';
+import { type OrganisationTeamMemberRepository } from '../../organisation-management/repo/organisation-team-member-repository';
 
 // food for thought, currently using read_all permission to get all projects is ok when there's no organisation structure.
 // But if there is, it'll bit a tad more complicated to implement.

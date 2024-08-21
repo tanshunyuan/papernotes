@@ -7,7 +7,7 @@ import { api } from "~/trpc/react";
 import isEmpty from 'lodash/isEmpty'
 import React, { useState } from "react";
 import { CreateProjectDialog } from "./_components/dialogs/create-project-dialog";
-import { RouterOutputs } from "~/trpc/shared";
+import { type RouterOutputs } from "~/trpc/shared";
 import { UpdateProjectDialog } from "./_components/dialogs/update-project-dialog";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";

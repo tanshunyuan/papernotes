@@ -1,5 +1,5 @@
-import { DbService, DrizzleTransactionScope } from '~/server/db';
-import { Organisation, ORGANISATION_TYPE_ENUM } from './../models/organisation';
+import { type DbService, type DrizzleTransactionScope } from '~/server/db';
+import { type Organisation, type ORGANISATION_TYPE_ENUM } from './../models/organisation';
 import { organisationSchema } from '~/server/db/schema';
 import { and, count, eq, isNull } from 'drizzle-orm';
 import { OrganisationMapper } from '../mappers';

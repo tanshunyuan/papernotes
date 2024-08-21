@@ -6,7 +6,7 @@ import { api } from "~/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import { RouterOutputs } from "~/trpc/shared";
+import { type RouterOutputs } from "~/trpc/shared";
 
 type UpsertOrgResourcesFormProps = {
   orgId: string

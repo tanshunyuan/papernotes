@@ -1,6 +1,6 @@
 import { membershipsSchema, organisationSchema, organisationTeamMembersSchema, organisationTeamsSchema, projectSchema, userSchema } from './../../../db/schema';
-import { DbService } from '~/server/db';
-import { Project } from '../models/project';
+import { type DbService } from '~/server/db';
+import { type Project } from '../models/project';
 import { and, count, eq, isNull } from 'drizzle-orm';
 import { ProjectMapper } from '../mappers';
 

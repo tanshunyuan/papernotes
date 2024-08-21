@@ -8,7 +8,7 @@ import SuperJSON from "superjson";
 
 import { type AppRouter } from "~/server/api/root";
 import { getUrl } from "./shared";
-import { BaseChildrenProps } from "~/types/common";
+import { type BaseChildrenProps } from "~/types/common";
 
 const createQueryClient = () => new QueryClient();
 

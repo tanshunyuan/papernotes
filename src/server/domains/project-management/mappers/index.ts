@@ -1,6 +1,6 @@
-import { projectSchema } from "~/server/db/schema";
+import { type projectSchema } from "~/server/db/schema";
 import { Project } from "../models/project";
-import { InferSelectModel } from "drizzle-orm";
+import { type InferSelectModel } from "drizzle-orm";
 
 type ProjectSchemaType = InferSelectModel<typeof projectSchema>
 

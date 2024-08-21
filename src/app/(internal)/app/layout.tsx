@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { BaseChildrenProps } from "~/types/common";
+import { type BaseChildrenProps } from "~/types/common";
 import { AppNavbar } from "./_components/navbar";
 import { Toaster } from "react-hot-toast";
 

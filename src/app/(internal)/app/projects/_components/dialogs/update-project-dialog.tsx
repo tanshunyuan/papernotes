@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
 import { api } from "~/trpc/react";
 import toast from "react-hot-toast";
-import { RouterOutputs } from "~/trpc/shared";
+import { type RouterOutputs } from "~/trpc/shared";
 
 // Zod schema for form validation
 const schema = zod.object({

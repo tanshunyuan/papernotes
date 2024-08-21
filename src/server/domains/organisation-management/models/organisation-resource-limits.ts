@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Organisation } from "./organisation";
+import { type Organisation } from "./organisation";
 
 export const ResourceLimitsConfigurationSchema = z.object({
   resources: z.object({

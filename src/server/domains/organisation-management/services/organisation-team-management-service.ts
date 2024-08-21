@@ -1,10 +1,10 @@
 import { uuid } from "uuidv4"
 import { OrganisationTeam } from "../models/organisation-team"
 import { MEMBERSHIP_ROLE_ENUM } from "../models/membership"
-import { OrganisationRepository } from "../repo/organisation-repository"
-import { OrganisationTeamRepository } from "../repo/organisation-team-repository"
-import { MembershipRepository } from "../repo/membership-repository"
-import { OrganisationTeamMemberRepository } from '../repo/organisation-team-member-repository';
+import { type OrganisationRepository } from "../repo/organisation-repository"
+import { type OrganisationTeamRepository } from "../repo/organisation-team-repository"
+import { type MembershipRepository } from "../repo/membership-repository"
+import { type OrganisationTeamMemberRepository } from '../repo/organisation-team-member-repository';
 import { OrganisationTeamMember } from "../models/organisation-team-member"
 
 interface CreateTeamArgs {

@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { DbService } from "~/server/db";
+import { type DbService } from "~/server/db";
 import { userSchema } from "~/server/db/schema";
 import { User, USER_PLAN_ENUM } from "../models/user";
 
